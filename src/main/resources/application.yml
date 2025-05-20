@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: invenza
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=Asia/Taipei&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+jwt:
+  secret-key: "a8f4c2e7b1d9f6g3h5j2k8l0q6w4z7x1"
+  valid-seconds: 3600
