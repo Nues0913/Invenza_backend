@@ -1,10 +1,9 @@
 package com.example.invenza.dto;
 
-import java.util.List;
+import com.example.invenza.config.MemberUserDetails;
 
 import lombok.Getter;
 import lombok.Setter;
-import com.example.invenza.config.MemberUserDetails;
 
 @Getter
 @Setter
