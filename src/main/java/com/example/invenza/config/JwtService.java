@@ -26,6 +26,7 @@ public class JwtService {
         var claims = Jwts.claims()
                 .setSubject(user.getId());
         claims.put("username", user.getUsername());
+        claims.put("id", user.getId());
         claims.put("email", user.getEmail());
         claims.put("phone", user.getPhone());
 
