@@ -1,7 +1,14 @@
 package com.example.invenza.controller;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +22,8 @@ import com.example.invenza.dto.LoginRequest;
 import com.example.invenza.dto.LoginResponse;
 
 @RestController
-public class TestController {
-    private static final String BEARER_PREFIX = "Bearer ";
+@RequestMapping("/api/auth")
+public class AuthController {
     
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -24,31 +31,42 @@ public class TestController {
     @Autowired
     private JwtService jwtService;
     
-    @RequestMapping("/test")
+    @GetMapping("/test")
     public String test() {
         return "Hello, this is a test endpoint!";
     }
 
-
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         var token = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
-        var auth = authenticationManager.authenticate(token);
-        var user = (MemberUserDetails) auth.getPrincipal();
+        Authentication auth;
 
+        try {
+            auth = authenticationManager.authenticate(token);
+        } catch (AuthenticationException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+
+        var user = (MemberUserDetails) auth.getPrincipal();
         var jwt = jwtService.createLoginAccessToken(user);
 
-        return LoginResponse.of(jwt, user);
+        return ResponseEntity.ok(LoginResponse.of(jwt, user));
     }
 
     @GetMapping("/who-am-i")
-    public LoginResponse whoAmI() {
+    public ResponseEntity<?> whoAmI() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new RuntimeException("未登入");
+        if (!auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid Token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
+
         var user = (MemberUserDetails) auth.getPrincipal();
-        return LoginResponse.of(null, user); // 不回傳 jwt，只回傳 user 資訊
+        var response = LoginResponse.of(null, user);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/home")
