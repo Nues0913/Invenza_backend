@@ -1,4 +1,4 @@
-package com.example.invenza.config;
+package com.example.invenza.config.security;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,7 +21,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final List<String> WHITELIST = List.of(
         "/api/auth/login",
         "/api/auth/test",
-        "/api/auth/forgotpassword"
+        "/api/auth/forgot-password",
+        "/error"
     );
     
     public JwtAuthenticationFilter(JwtService jwtService) {
@@ -46,32 +47,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwtToken = authHeader.substring(BEARER_PREFIX.length());
         try {
             Claims claims = jwtService.parseToken(jwtToken);
-            setUpSecurityContext(claims);
+            setUpSecurityContext(claims, jwtToken);
         } catch (JwtException e) {
-            handleAuthenticationError(response, "Invalid Token");
+            handleAuthenticationError(HttpServletResponse.SC_UNAUTHORIZED, response, e.getMessage());
+            return;
+        } catch (IllegalArgumentException e) {
+            handleAuthenticationError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response, e.getMessage());
+            return;
+        } catch (Exception e) {
+            handleAuthenticationError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response, e.getMessage());
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void setUpSecurityContext(Claims claims) {
-        MemberUserDetails userDetails = new MemberUserDetails();
-        userDetails.setId(claims.getSubject());
-        userDetails.setUsername(claims.get("username", String.class));
-        userDetails.setEmail(claims.get("email", String.class));
-        userDetails.setPhone(claims.get("phone", String.class));
+    private void setUpSecurityContext(Claims claims, String jwtToken) throws Exception{
+        if (claims == null) {
+            throw new IllegalArgumentException("null Claims");
+        }
 
-        var authenticationToken = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        try {
+            MemberUserDetails userDetails = new MemberUserDetails();
+            userDetails.setId(claims.getSubject());
+            userDetails.setName(claims.get("name", String.class));
+            userDetails.setEmail(claims.get("email", String.class));
+            userDetails.setPhone(claims.get("phone", String.class));
+    
+            var authenticationToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    jwtToken,
+                    userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
-    private void handleAuthenticationError(HttpServletResponse response, String errorMessage) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    private void handleAuthenticationError(int statusCode, HttpServletResponse response, String errorMessage) throws IOException {
+        response.setStatus(statusCode);
         response.setContentType("application/json");
         response.getWriter().write(String.format("{\"error\": \"%s\"}", errorMessage));
     }
