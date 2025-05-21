@@ -1,18 +1,22 @@
-package com.example.invenza.config;
+package com.example.invenza.config.security;
 
-import com.example.invenza.entity.Member;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.example.invenza.entity.Member;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class MemberUserDetails implements UserDetails {
+    private String jwt;
     private String id;
-    private String username;
+    private String name;
     private String password;
     private String email;
     private String phone;
@@ -21,15 +25,20 @@ public class MemberUserDetails implements UserDetails {
 
     public MemberUserDetails(Member member) {
         this.id = member.getId();
-        this.username = member.getUsername();
+        this.name = member.getName();
         this.password = member.getPassword();
         this.email = member.getEmail();
         this.phone = member.getPhone();
     }
 
     @Override
+    public String getUsername() {
+        return this.name;
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 如有權限可在此實作，暫時回傳空集合
+        // TODO: 實作權限功能(admin, employee)
         return Collections.emptyList();
     }
 
