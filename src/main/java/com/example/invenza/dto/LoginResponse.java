@@ -1,6 +1,6 @@
 package com.example.invenza.dto;
 
-import com.example.invenza.config.MemberUserDetails;
+import com.example.invenza.config.security.MemberUserDetails;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,18 +9,20 @@ import lombok.Setter;
 @Setter
 public class LoginResponse {
     private String jwt;
+    private boolean success;
+    private String name;
     private String id;
-    private String username;
     private String email;
     private String phone;
 
     public static LoginResponse of(String jwt, MemberUserDetails user) {
         var res = new LoginResponse();
-        res.jwt = jwt;
-        res.id = user.getId();
-        res.username = user.getUsername();
-        res.email = user.getEmail();
-        res.phone = user.getPhone();
+        res.setJwt(jwt);
+        res.setSuccess(true);
+        res.setName(user.getUsername());
+        res.setId(user.getId());
+        res.setEmail(user.getEmail());
+        res.setPhone(user.getPhone());
         return res;
     }
 }
