@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.invenza.config.JwtService;
-import com.example.invenza.config.MemberUserDetails;
+import com.example.invenza.config.security.JwtService;
+import com.example.invenza.config.security.MemberUserDetails;
 import com.example.invenza.dto.LoginRequest;
 import com.example.invenza.dto.LoginResponse;
 
@@ -38,14 +38,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        var token = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+        
+        var token = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
         Authentication auth;
 
         try {
             auth = authenticationManager.authenticate(token);
         } catch (AuthenticationException e) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid username or password");
+            errorResponse.put("error", "Invalid account or password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
 
@@ -57,6 +58,8 @@ public class AuthController {
 
     @GetMapping("/who-am-i")
     public ResponseEntity<?> whoAmI() {
+        // String jwt = jwt from security context 
+        String jwt = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
             Map<String, String> errorResponse = new HashMap<>();
@@ -65,7 +68,7 @@ public class AuthController {
         }
 
         var user = (MemberUserDetails) auth.getPrincipal();
-        var response = LoginResponse.of(null, user);
+        var response = LoginResponse.of(jwt, user);
         return ResponseEntity.ok(response);
     }
 
