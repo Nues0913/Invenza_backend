@@ -7,7 +7,8 @@ import lombok.Setter;
 @Setter
 public class MemberDto {
     private String id;
-    private String username;
+    private String account;
+    private String name;
     private String email;
     private String phone;
 }
