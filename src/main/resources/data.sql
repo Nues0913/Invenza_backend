@@ -1,0 +1,2 @@
+TRUNCATE TABLE member;
+INSERT INTO member (id, account, name, password, email, phone) VALUES ('1', 'invenza_user1', 'Kirisame Marisa', '$2a$10$wA9I1vWm4uark5G0VEV9Ke8wEpEFxE5GE25TXVVEqXTYwkl3j24Ey', 'user1@email.com', '0912345678');
