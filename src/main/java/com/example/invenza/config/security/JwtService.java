@@ -1,11 +1,15 @@
-package com.example.invenza.config;
+package com.example.invenza.config.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-
-import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 public class JwtService {
     private final SecretKey secretKey;
@@ -25,8 +29,7 @@ public class JwtService {
 
         var claims = Jwts.claims()
                 .setSubject(user.getId());
-        claims.put("username", user.getUsername());
-        claims.put("id", user.getId());
+        claims.put("name", user.getUsername());
         claims.put("email", user.getEmail());
         claims.put("phone", user.getPhone());
 
