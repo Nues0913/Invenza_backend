@@ -10,6 +10,17 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
+  # 每次重啟會自動重建並插入測試資料 
+  sql:
+    init:
+      mode: always 
 jwt:
   secret-key: "a8f4c2e7b1d9f6g3h5j2k8l0q6w4z7x1"
   valid-seconds: 3600
+server:
+  address: 127.0.0.1
+  port: 8080
+logging:
+  level:
+    org.springframework.security: DEBUG
