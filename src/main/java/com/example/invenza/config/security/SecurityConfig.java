@@ -13,6 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.example.invenza.util.Constants;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -44,11 +46,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/test",
-                    "/api/auth/forgot-password"
-                ).permitAll()
+                auth.requestMatchers(Constants.PUBLIC_API_PATHS).permitAll()
                 .anyRequest().authenticated() // 其他請求需要身份驗證
             )
             .sessionManagement(sessionManagement -> {

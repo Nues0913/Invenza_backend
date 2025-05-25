@@ -8,6 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.invenza.util.Constants;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -18,12 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
     private final JwtService jwtService;
-    private static final List<String> WHITELIST = List.of(
-        "/api/auth/login",
-        "/api/auth/test",
-        "/api/auth/forgot-password",
-        "/error"
-    );
+    private static final List<String> WHITELIST = List.of(Constants.PUBLIC_API_PATHS);
     
     public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -40,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
+            handleAuthenticationError(HttpServletResponse.SC_UNAUTHORIZED, response, Constants.MISSING_OR_WRONG_HEADER);
             return;
         }
 
