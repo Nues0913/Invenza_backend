@@ -5,31 +5,23 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.invenza.config.security.JwtService;
-import com.example.invenza.config.security.MemberUserDetails;
 import com.example.invenza.dto.LoginRequest;
 import com.example.invenza.dto.LoginResponse;
+import com.example.invenza.service.AuthService;
+import com.example.invenza.util.Constants;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
+    private AuthService authService;
     
     @GetMapping("/test")
     public String test() {
@@ -38,38 +30,26 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        
-        var token = new UsernamePasswordAuthenticationToken(request.getAccount(), request.getPassword());
-        Authentication auth;
-
         try {
-            auth = authenticationManager.authenticate(token);
-        } catch (AuthenticationException e) {
+            LoginResponse response = authService.authenticate(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid account or password");
+            errorResponse.put("error", Constants.LOGIN_FAILED_MESSAGE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
-
-        var user = (MemberUserDetails) auth.getPrincipal();
-        var jwt = jwtService.createLoginAccessToken(user);
-
-        return ResponseEntity.ok(LoginResponse.of(jwt, user));
     }
 
     @GetMapping("/who-am-i")
     public ResponseEntity<?> whoAmI() {
-        // String jwt = jwt from security context 
-        String jwt = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+        try {
+            var response = authService.getCurrentUser();
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid Token");
+            errorResponse.put("error", Constants.INVALID_TOKEN_MESSAGE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
-
-        var user = (MemberUserDetails) auth.getPrincipal();
-        var response = LoginResponse.of(jwt, user);
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/home")
