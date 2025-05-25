@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import com.example.invenza.repository.MemberRepository;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class MemberUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
-    public UserDetailsServiceImpl(MemberRepository memberRepository) {
+    public MemberUserDetailsService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
 
