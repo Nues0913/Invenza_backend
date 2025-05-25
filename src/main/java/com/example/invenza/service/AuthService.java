@@ -48,4 +48,8 @@ public class AuthService {
         var user = (MemberUserDetails) auth.getPrincipal();
         return LoginResponse.of(jwt, user);
     }
+
+    public void forgotPassword(String email) {
+        // TODO: Waiting for frontend Document to implement
+    }
 }
