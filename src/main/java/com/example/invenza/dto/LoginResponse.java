@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class LoginResponse {
     private String jwt;
-    private boolean success;
     private String name;
     private String id;
     private String email;
@@ -18,7 +17,6 @@ public class LoginResponse {
     public static LoginResponse of(String jwt, MemberUserDetails user) {
         var res = new LoginResponse();
         res.setJwt(jwt);
-        res.setSuccess(true);
         res.setName(user.getUsername());
         res.setId(user.getId());
         res.setEmail(user.getEmail());
