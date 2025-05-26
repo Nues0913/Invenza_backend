@@ -47,6 +47,10 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth ->
                 auth.requestMatchers(Constants.PUBLIC_API_PATHS).permitAll()
+                .requestMatchers("/api/procurement/**").hasRole("PROCUREMENT")//控制權限存取API
+                .requestMatchers("/api/inventory/**").hasRole("INVENTORY")
+                .requestMatchers("/api/sales/**").hasRole("SALER")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated() // 其他請求需要身份驗證
             )
             .sessionManagement(sessionManagement -> {
