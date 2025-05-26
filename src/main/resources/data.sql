@@ -1,6 +1,6 @@
 TRUNCATE TABLE member;
-INSERT INTO member (id, account, name, password, email, phone) VALUES ('1', 'invenza_user1', 'Kirisame Marisa', '$2a$10$wA9I1vWm4uark5G0VEV9Ke8wEpEFxE5GE25TXVVEqXTYwkl3j24Ey', 'user1@email.com', '0912345678');
-INSERT INTO member (id, account, name, password, email, phone) VALUES ('2', 'invenza_user2', '蔡英文', '$2b$12$6nBsacdVMIuTNURhPYS8buwgGIk2QZw0i9QcmeACO2aZvbOj1Djom', 'user2@email.com', '0914345678');
-INSERT INTO member (id, account, name, password, email, phone) VALUES ('3', 'invenza_user3', '柯文哲', '$2b$12$vBqlQAD3Fb4Himv.frJVH.eFjrBlTMpXgGsgUSgzLBJ6xwOFL267S', 'user3@email.com', '0916345678');
-INSERT INTO member (id, account, name, password, email, phone) VALUES ('4', 'invenza_user4', 'Remilia Scarlet', '$2b$12$sUATzoIXpLnMUzDyyFmFnuPWnhTCgMDvGGUDqWWG1McSbj15Y3wW6', 'user4@email.com', '0918345678');
-INSERT INTO member (id, account, name, password, email, phone) VALUES ('5', 'invenza_user5', 'Beilleheila Langdass', '$2b$12$RuDS6.r6DJ1V5Cj5cSfnSOFbCmOdZtFxNiu4a0PQN4rNhTU09W3Re', 'user5@email.com', '0910345678');
+INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('F00001', 'invenza_user1', 'Admin', '$2a$10$wA9I1vWm4uark5G0VEV9Ke8wEpEFxE5GE25TXVVEqXTYwkl3j24Ey', 'user1@email.com', '0912345678', 'F');
+INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('400001', 'invenza_user2', '蔡英文', '$2b$12$6nBsacdVMIuTNURhPYS8buwgGIk2QZw0i9QcmeACO2aZvbOj1Djom', 'user2@email.com', '0914345678', '4');
+INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('200001', 'invenza_user3', '柯文哲', '$2b$12$vBqlQAD3Fb4Himv.frJVH.eFjrBlTMpXgGsgUSgzLBJ6xwOFL267S', 'user3@email.com', '0916345678', '2');
+INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100001', 'invenza_user4', 'Remilia Scarlet', '$2b$12$sUATzoIXpLnMUzDyyFmFnuPWnhTCgMDvGGUDqWWG1McSbj15Y3wW6', 'user4@email.com', '0918345678', '1');
+INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100002', 'invenza_user5', 'Beilleheila Langdass', '$2b$12$RuDS6.r6DJ1V5Cj5cSfnSOFbCmOdZtFxNiu4a0PQN4rNhTU09W3Re', 'user5@email.com', '0910345678', '1');

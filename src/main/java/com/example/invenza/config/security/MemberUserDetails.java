@@ -1,9 +1,11 @@
 package com.example.invenza.config.security;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.invenza.entity.Member;
@@ -20,6 +22,7 @@ public class MemberUserDetails implements UserDetails {
     private String password;
     private String email;
     private String phone;
+    private String role;
 
     public MemberUserDetails() {}
 
@@ -29,6 +32,7 @@ public class MemberUserDetails implements UserDetails {
         this.password = member.getPassword();
         this.email = member.getEmail();
         this.phone = member.getPhone();
+        this.role = member.getRole();
     }
 
     @Override
@@ -36,10 +40,30 @@ public class MemberUserDetails implements UserDetails {
         return this.name;
     }
 
+    public String getRole() {
+        return this.role;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // TODO: 實作權限功能(admin, employee)
-        return Collections.emptyList();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        int r = Integer.parseInt(String.valueOf(role), 16);
+
+        if ((r & 1) != 0) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_SALER"));
+        }
+        if ((r & 2) != 0) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_INVENTORY"));
+        }
+        if ((r & 4) != 0) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_PROCUREMENT"));
+        }
+        if ((r & 8) != 0) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+
+        return authorities;
     }
 
     @Override
