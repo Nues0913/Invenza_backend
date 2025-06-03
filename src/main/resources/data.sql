@@ -4,3 +4,11 @@ INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('40
 INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('200001', 'invenza_user3', '柯文哲', '$2b$12$vBqlQAD3Fb4Himv.frJVH.eFjrBlTMpXgGsgUSgzLBJ6xwOFL267S', 'user3@email.com', '0916345678', '2');
 INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100001', 'invenza_user4', 'Remilia Scarlet', '$2b$12$sUATzoIXpLnMUzDyyFmFnuPWnhTCgMDvGGUDqWWG1McSbj15Y3wW6', 'user4@email.com', '0918345678', '1');
 INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100002', 'invenza_user5', 'Beilleheila Langdass', '$2b$12$RuDS6.r6DJ1V5Cj5cSfnSOFbCmOdZtFxNiu4a0PQN4rNhTU09W3Re', 'user5@email.com', '0910345678', '1');
+TRUNCATE TABLE commodity;
+INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity, expected_export_quantity) VALUES (1, 'apple', 'Z232', 30.0, 10.0, 20.0);
+INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity, expected_export_quantity) VALUES (2, 'banana', 'Y213', 12.0, 5.0, 7.0);
+INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity, expected_export_quantity) VALUES (3, 'cake', 'E545', 60.0, 10.0, 22.0);
+TRUNCATE TABLE procurement;
+INSERT INTO procurement (id, commodity_name, commodity_type, unit_price, quantity, supplier_name, supplier_id, supplier_email, supplier_phone, order_date, deadline_date) VALUES (1, 'apple', 'Z232', 30.0, 10, 'WEEE', 'W213', 'supplier1@email.com', '0911111111', '2025-06-01', '2025-06-02');
+TRUNCATE TABLE orders;
+INSERT INTO orders (id, commodity_name, commodity_type, unit_price, quantity, dealer_name, dealer_id, dealer_email, dealer_phone, order_date, deadline_date) VALUES (1, 'apple', 'Z232', 30.0, 10, 'Andy', 'C487', 'dealer1@email.com', '0922222222', '2025-06-01', '2025-06-02');
