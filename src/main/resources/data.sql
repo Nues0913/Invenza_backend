@@ -5,10 +5,10 @@ INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('20
 INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100001', 'invenza_user4', 'Remilia Scarlet', '$2b$12$sUATzoIXpLnMUzDyyFmFnuPWnhTCgMDvGGUDqWWG1McSbj15Y3wW6', 'user4@email.com', '0918345678', '1');
 INSERT INTO member (id, account, name, password, email, phone, role) VALUES ('100002', 'invenza_user5', 'Beilleheila Langdass', '$2b$12$RuDS6.r6DJ1V5Cj5cSfnSOFbCmOdZtFxNiu4a0PQN4rNhTU09W3Re', 'user5@email.com', '0910345678', '1');
 TRUNCATE TABLE commodity;
-INSERT INTO commodity (id, name, type, stockQuantity, expectedImportQuantity, expectedExportQuantity) VALUES ('1', 'apple', 'Z232', '30', '10', '20');
-INSERT INTO commodity (id, name, type, stockQuantity, expectedImportQuantity, expectedExportQuantity) VALUES ('2', 'banana', 'Y213', '12', '5', '7');
-INSERT INTO commodity (id, name, type, stockQuantity, expectedImportQuantity, expectedExportQuantity) VALUES ('3', 'cake', 'E545', '60', '10', '22');
-TRUNCATE TABLE procrement;
-INSERT INTO procrement (id, commodityName, commodityType, unitPrice, quantity, supplierName, supplierId, supplierEmail, supplierPhone, orderDate, deadlineDate) VALUES ('1', 'apple', 'Z232', '30', '10', 'WEEE', 'W213', 'supplier1@email.com', '0911111111', 20250601, 20250602);
-TRUNCATE TABLE order;
-INSERT INTO procrement (id, commodityName, commodityType, unitPrice, quantity, dealerName, dealerId, dealerEmail, dealerPhone, orderDate, deadlineDate) VALUES ('1', 'apple', 'Z232', '30', '10', 'Andy', 'C487', 'dealer1@email.com', '0922222222', 20250601, 20250602);
+INSERT INTO commodity (id, name, type, stock_quantity, expected_importquantity, expected_exportquantity) VALUES ('1', 'apple', 'Z232', '30', '10', '20');
+INSERT INTO commodity (id, name, type, stock_quantity, expected_importquantity, expected_exportquantity) VALUES ('2', 'banana', 'Y213', '12', '5', '7');
+INSERT INTO commodity (id, name, type, stock_quantity, expected_importquantity, expected_exportquantity) VALUES ('3', 'cake', 'E545', '60', '10', '22');
+TRUNCATE TABLE procurement;
+INSERT INTO procurement (id, commodity_name, commodity_type, unit_price, quantity, supplier_name, supplier_id, supplier_email, supplier_phone, order_date, deadline_date) VALUES ('1', 'apple', 'Z232', '30', '10', 'WEEE', 'W213', 'supplier1@email.com', '0911111111', 20250601, 20250602);
+TRUNCATE TABLE orders;
+INSERT INTO orders (id, commodity_name, commodity_type, unit_price, quantity, dealer_name, dealer_id, dealer_email, dealer_phone, order_date, deadline_date) VALUES ('1', 'apple', 'Z232', '30', '10', 'Andy', 'C487', 'dealer1@email.com', '0922222222', 20250601, 20250602);
