@@ -1,8 +1,8 @@
 package com.example.invenza.config.security;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,7 +47,11 @@ public class MemberUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // TODO: 實作權限功能(admin, employee)
         List<GrantedAuthority> authorities = new ArrayList<>();
-
+        
+        if (role == null || role.trim().isEmpty()) {
+            return authorities;
+        }
+        
         int r = Integer.parseInt(String.valueOf(role), 16);
 
         if ((r & 1) != 0) {
