@@ -9,6 +9,6 @@ INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity,
 INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity, expected_export_quantity) VALUES (2, 'banana', 'Y213', 12.0, 5.0, 7.0);
 INSERT INTO commodity (id, name, type, stock_quantity, expected_import_quantity, expected_export_quantity) VALUES (3, 'cake', 'E545', 60.0, 10.0, 22.0);
 TRUNCATE TABLE procurement;
-INSERT INTO procurement (id, commodity_name, commodity_type, unit_price, quantity, supplier_name, supplier_id, supplier_email, supplier_phone, order_date, deadline_date) VALUES (1, 'apple', 'Z232', 30.0, 10, 'WEEE', 'W213', 'supplier1@email.com', '0911111111', '2025-06-01', '2025-06-02');
+INSERT INTO procurement (id, commodity_name, commodity_type, unit_price, quantity, supplier_name, supplier_id, supplier_email, supplier_phone, order_date, deadline_date, employee_name, employee_id, employee_email, employee_phone) VALUES (1, 'apple', 'Z232', 30.0, 10, 'WEEE', 'W213', 'supplier1@email.com', '0911111111', '2025-06-01', '2025-06-02', 'Admin', 'F00001', 'user1@email.com', '0912345678');
 TRUNCATE TABLE orders;
 INSERT INTO orders (id, commodity_name, commodity_type, unit_price, quantity, dealer_name, dealer_id, dealer_email, dealer_phone, order_date, deadline_date) VALUES (1, 'apple', 'Z232', 30.0, 10, 'Andy', 'C487', 'dealer1@email.com', '0922222222', '2025-06-01', '2025-06-02');
