@@ -15,8 +15,6 @@ import com.example.invenza.entity.Procurement;
 import com.example.invenza.service.ProcurementService;
 
 import lombok.extern.slf4j.Slf4j;
-
-
 @Slf4j
 @RestController
 @RequestMapping("/api/procurement")
