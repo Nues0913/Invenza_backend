@@ -7,6 +7,7 @@ import com.example.invenza.entity.*;
 import com.example.invenza.repository.*;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class ProcurementService {
@@ -45,5 +46,10 @@ public class ProcurementService {
 
             return dto;
         }).toList();
+    }
+
+    public List<Procurement> getUndueProcurements() {
+        LocalDate today = LocalDate.now();
+        return procurementRepository.findByDeadlineDateAfter(today);
     }
 }
