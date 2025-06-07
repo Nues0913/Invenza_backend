@@ -25,7 +25,6 @@ public class ProcurementController {
     public ProcurementController(ProcurementService procurementService) {
         this.procurementService = procurementService;
     }
-
     @GetMapping("/get-data")
     public ResponseEntity<Map<String, Object>> getProcurementData() {
         List<Procurement> procurements = procurementService.getUndueProcurements();
@@ -36,5 +35,6 @@ public class ProcurementController {
 
         return ResponseEntity.ok(Map.of("data", result));
     }
+
 }
 

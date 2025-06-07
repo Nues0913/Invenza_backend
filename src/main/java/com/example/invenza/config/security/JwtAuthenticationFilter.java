@@ -16,7 +16,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
     private final JwtService jwtService;
@@ -46,12 +49,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Claims claims = jwtService.parseToken(jwtToken);
             setUpSecurityContext(claims, jwtToken);
         } catch (JwtException e) {
+            log.error("JWT token parse failed: {}", e.getMessage());
             handleAuthenticationError(HttpServletResponse.SC_UNAUTHORIZED, response, e.getMessage());
             return;
         } catch (IllegalArgumentException e) {
+            log.error("JWT token parse failed: {}", e.getMessage());
             handleAuthenticationError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response, e.getMessage());
             return;
         } catch (Exception e) {
+            log.error("JWT token parse failed: {}", e.getMessage());
             handleAuthenticationError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response, e.getMessage());
             return;
         }
@@ -70,6 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userDetails.setName(claims.get("name", String.class));
             userDetails.setEmail(claims.get("email", String.class));
             userDetails.setPhone(claims.get("phone", String.class));
+            userDetails.setRole(claims.get("role", String.class));
     
             var authenticationToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
