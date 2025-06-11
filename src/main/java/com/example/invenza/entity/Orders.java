@@ -1,9 +1,14 @@
 package com.example.invenza.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +39,6 @@ public class Orders {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
-    private LocalDate orderDate;
-    private LocalDate deadlineDate;
+    private LocalDateTime orderDate;
+    private LocalDateTime deadlineDate;
 }

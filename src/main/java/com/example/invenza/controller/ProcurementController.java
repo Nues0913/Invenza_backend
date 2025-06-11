@@ -1,6 +1,7 @@
 package com.example.invenza.controller;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,8 +26,9 @@ public class ProcurementController {
         this.procurementService = procurementService;
     }
     
-    @GetMapping("/get-data")
+    @GetMapping(value = "/get-data", produces = "application/json; charset=utf-8")
     public ResponseEntity<Map<String, Object>> getProcurementData() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         List<Procurement> procurements = procurementService.getUndueProcurements();
         List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
             return Map.of(
@@ -48,8 +50,8 @@ public class ProcurementController {
                         "phone", procurement.getSupplierPhone()
                     )
                 ),
-                "orderTimeStamp", procurement.getOrderDate(),
-                "deadlineTimeStamp", procurement.getDeadlineDate(),
+                "orderTimeStamp", procurement.getOrderDate().format(formatter),
+                "deadlineTimeStamp", procurement.getDeadlineDate().format(formatter),
                 "responsible", Map.of(
                     "name", procurement.getEmployeeName(),
                     "id", procurement.getEmployeeId(),
@@ -60,6 +62,7 @@ public class ProcurementController {
                 )
             );
         }).collect(Collectors.toList());
+        log.info("return: {}", responseList);
         return ResponseEntity.ok(Map.of("data", responseList));
     }
 
