@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.example.invenza.entity.Procurement;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,9 @@ public class ProcurementDto {
     private String supplierEmail;
     private String supplierPhone;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime orderDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime deadlineDate;
 
     private String employeeName;
