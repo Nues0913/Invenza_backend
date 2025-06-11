@@ -24,9 +24,7 @@ public class ProcurementDto {
     private String supplierEmail;
     private String supplierPhone;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime orderDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime deadlineDate;
 
     private String employeeName;

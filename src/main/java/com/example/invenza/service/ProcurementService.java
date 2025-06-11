@@ -7,6 +7,7 @@ import com.example.invenza.entity.*;
 import com.example.invenza.repository.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 @Service
@@ -48,8 +49,11 @@ public class ProcurementService {
         }).toList();
     }
 
-    public List<Procurement> getUndueProcurements() {
+    public List<ProcurementDto> getUndueProcurements() {
         LocalDateTime now = LocalDateTime.now();
-        return procurementRepository.findByDeadlineDateAfter(now);
+        List<Procurement> procurements =  procurementRepository.findByDeadlineDateAfter(now);
+        return procurements.stream()
+        .map(ProcurementDto::of)
+        .collect(Collectors.toList());
     }
 }
