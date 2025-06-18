@@ -1,6 +1,7 @@
 package com.example.invenza.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import jakarta.persistence.criteria.Predicate;
 @Service
 public class ProcurementService {
 
-    private ProcurementRepository procurementRepository;
+    private final ProcurementRepository procurementRepository;
 
     public ProcurementService(ProcurementRepository procurementRepository) {
         this.procurementRepository = procurementRepository;
@@ -63,48 +64,51 @@ public class ProcurementService {
     }
 
     public List<ProcurementDto> getUndueProcurements(Map<String, String> allParams) {
-        LocalDateTime now = LocalDateTime.now();
         if(allParams == null || allParams.isEmpty()) {
             return getUndueProcurements();
         }
-
-        // businessPartner -> supplierName
-        // businessPartnerId -> supplierId
-        // responsible -> employeeName
-        // responsibleId -> employeeId
         Specification<Procurement> spec = (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+            // base predicates
             if (allParams.containsKey("commodityName") && allParams.get("commodityName") != null) {
                 predicates.add(builder.equal(root.get("commodityName"), allParams.get("commodityName")));
             }
             if (allParams.containsKey("commodityType") && allParams.get("commodityType") != null) {
                 predicates.add(builder.equal(root.get("commodityType"), allParams.get("commodityType")));
             }
+
+            // businessPartner predicates
             if (allParams.containsKey("businessPartner") && allParams.get("businessPartner") != null) {
-                predicates.add(builder.equal(root.get("supplierName"), allParams.get("supplierName")));
+                predicates.add(builder.equal(root.get("supplierName"), allParams.get("businessPartner")));
             }
             if (allParams.containsKey("businessPartnerId") && allParams.get("businessPartnerId") != null) {
-                predicates.add(builder.equal(root.get("supplierId"), allParams.get("supplierId")));
+                predicates.add(builder.equal(root.get("supplierId"), allParams.get("businessPartnerId")));
             }
-            if (allParams.containsKey("orderTimeStart") && allParams.get("orderTimeStart") != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get("orderTime"), allParams.get("orderTimeStart")));
-            }
-            if (allParams.containsKey("orderTimeEnd") && allParams.get("orderTimeEnd") != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get("orderTime"), allParams.get("orderTimeEnd")));
-            }
-            if (allParams.containsKey("deadlineStart") && allParams.get("deadlineStart") != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get("deadline"), allParams.get("deadlineStart")));
-            }
-            if (allParams.containsKey("deadlineEnd") && allParams.get("deadlineEnd") != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get("deadline"), allParams.get("deadlineEnd")));
-            }
+
+            // responsible predicates
             if (allParams.containsKey("responsible") && allParams.get("responsible") != null) {
-                predicates.add(builder.equal(root.get("employeeName"), allParams.get("employeeName")));
+                predicates.add(builder.equal(root.get("employeeName"), allParams.get("responsible")));
             }
             if (allParams.containsKey("responsibleId") && allParams.get("responsibleId") != null) {
-                predicates.add(builder.equal(root.get("employeeId"), allParams.get("employeeId")));
+                predicates.add(builder.equal(root.get("employeeId"), allParams.get("responsibleId")));
             }
-            query.where(builder.and(predicates.toArray(new Predicate[0])));
+
+            // LocalDateTime predicates
+            if (allParams.containsKey("orderTimeStart") && allParams.get("orderTimeStart") != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("orderDate"), LocalDateTime.parse(allParams.get("orderTimeStart"), dateTimeFormatter)));
+            }
+            if (allParams.containsKey("orderTimeEnd") && allParams.get("orderTimeEnd") != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("orderDate"), LocalDateTime.parse(allParams.get("orderTimeEnd"), dateTimeFormatter)));
+            }
+            if (allParams.containsKey("deadlineStart") && allParams.get("deadlineStart") != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("deadlineDate"), LocalDateTime.parse(allParams.get("deadlineStart"), dateTimeFormatter)));
+            }
+            if (allParams.containsKey("deadlineEnd") && allParams.get("deadlineEnd") != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("deadlineDate"), LocalDateTime.parse(allParams.get("deadlineEnd"), dateTimeFormatter)));
+            }
+            query.where(builder.and(predicates.toArray(Predicate[]::new)));
             return query.getRestriction();
         };
         List<Procurement> procurements = procurementRepository.findAll(spec);
