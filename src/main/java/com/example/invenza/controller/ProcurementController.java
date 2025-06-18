@@ -9,10 +9,10 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.invenza.dto.ProcurementDto;
-import com.example.invenza.entity.Procurement;
 import com.example.invenza.service.ProcurementService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +28,22 @@ public class ProcurementController {
     }
     
     @GetMapping(value = "/get-data", produces = "application/json; charset=utf-8")
-    public ResponseEntity<Map<String, Object>> getProcurementData() {
+    public ResponseEntity<Map<String, Object>> getProcurementData(
+        // @RequestParam(required = false) String commodityName,
+        // @RequestParam(required = false) String commodityType,
+        // @RequestParam(required = false) String businessPartner,
+        // @RequestParam(required = false) String businessPartnerId,
+        // @RequestParam(required = false) String orderTimeStart,
+        // @RequestParam(required = false) String orderTimeEnd,
+        // @RequestParam(required = false) String deadlineStart,
+        // @RequestParam(required = false) String deadlineEnd,
+        // @RequestParam(required = false) String responsible,
+        // @RequestParam(required = false) String responsibleId,
+        @RequestParam(required = false) Map<String, String> allParams
+    ) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        List<ProcurementDto> procurements = procurementService.getUndueProcurements();
+        log.info("getProcurementData params: {}", allParams);
+        List<ProcurementDto> procurements = procurementService.getUndueProcurements(allParams);
         List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
             return Map.of(
                 "id", procurement.getId(),
@@ -63,7 +76,7 @@ public class ProcurementController {
                 )
             );
         }).collect(Collectors.toList());
-        log.info("return: {}", responseList);
+        // log.info("return: {}", responseList);
         return ResponseEntity.ok(Map.of("data", responseList));
     }
 
