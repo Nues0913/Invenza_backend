@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,6 +82,15 @@ public class ProcurementController {
         // log.info("return: {}", responseList);
         return ResponseEntity.ok(Map.of("data", responseList));
     }
-
+    @PutMapping("/update-data")
+    public ResponseEntity<?> updateProcurement(@RequestBody Map<String, Object> request) {
+        try {
+            procurementService.updateProcurementFromMap(request);
+            return ResponseEntity.ok().build(); // 200 不回傳資料
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage())); // 404 錯誤處理
+        }
+    }
 }
 

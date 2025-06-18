@@ -1,11 +1,14 @@
 package com.example.invenza.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Optional;
+
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -116,4 +119,72 @@ public class ProcurementService {
             .map(ProcurementDto::of)
             .collect(Collectors.toList());
     }
+    public void updateProcurementFromMap(Map<String, Object> request) {
+        ProcurementDto dto = flattenRequestToDto(request);
+
+        Optional<Procurement> optional = procurementRepository.findById(dto.getId());
+        if (optional.isEmpty()) {
+            throw new RuntimeException("Procurement not found with ID: " + dto.getId());
+        }
+
+        Procurement procurement = optional.get();
+        // 資料寫入 entity
+        procurement.setCommodityName(dto.getCommodityName());
+        procurement.setCommodityType(dto.getCommodityType());
+        procurement.setUnitPrice(dto.getUnitPrice());
+        procurement.setQuantity(dto.getQuantity());
+
+        procurement.setSupplierName(dto.getSupplierName());
+        procurement.setSupplierId(dto.getSupplierId());
+        procurement.setSupplierEmail(dto.getSupplierEmail());
+        procurement.setSupplierPhone(dto.getSupplierPhone());
+
+        procurement.setOrderDate(dto.getOrderDate());
+        procurement.setDeadlineDate(dto.getDeadlineDate());
+
+        procurement.setEmployeeName(dto.getEmployeeName());
+        procurement.setEmployeeId(dto.getEmployeeId());
+        procurement.setEmployeeEmail(dto.getEmployeeEmail());
+        procurement.setEmployeePhone(dto.getEmployeePhone());
+
+        procurementRepository.save(procurement); // 寫入資料庫
+    }
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    public ProcurementDto flattenRequestToDto(Map<String, Object> request) {
+        ProcurementDto dto = new ProcurementDto();
+
+        dto.setId(Long.valueOf(request.get("id").toString()));
+
+        Map<String, Object> commodity = (Map<String, Object>) request.get("commodity");
+        dto.setCommodityName(commodity.get("name").toString());
+        dto.setCommodityType(commodity.get("type").toString());
+        Map<String, Object> transactionValue = (Map<String, Object>) commodity.get("transactionValue");
+        dto.setUnitPrice(new BigDecimal(transactionValue.get("unitPrice").toString()));
+        dto.setQuantity(Integer.parseInt(transactionValue.get("quantity").toString()));
+        dto.setTotalCost(new BigDecimal(transactionValue.get("totalCost").toString()));
+
+        Map<String, Object> supplier = (Map<String, Object>) request.get("supplier");
+        dto.setSupplierName(supplier.get("name").toString());
+        dto.setSupplierId(supplier.get("id").toString());
+        Map<String, Object> supplierAssoc = (Map<String, Object>) supplier.get("association");
+        dto.setSupplierEmail(supplierAssoc.get("email").toString());
+        dto.setSupplierPhone(supplierAssoc.get("phone").toString());
+
+        Map<String, Object> responsible = (Map<String, Object>) request.get("responsible");
+        dto.setEmployeeName(responsible.get("name").toString());
+        dto.setEmployeeId(responsible.get("id").toString());
+        Map<String, Object> employeeAssoc = (Map<String, Object>) responsible.get("association");
+        dto.setEmployeeEmail(employeeAssoc.get("email").toString());
+        dto.setEmployeePhone(
+            employeeAssoc.get("phone") != null ? employeeAssoc.get("phone").toString() : null
+        );
+
+        dto.setOrderDate(LocalDateTime.parse(request.get("orderTimeStamp").toString(), formatter));
+        dto.setDeadlineDate(LocalDateTime.parse(request.get("deadlineTimeStamp").toString(), formatter));
+
+        return dto;
+    }
+
 }
