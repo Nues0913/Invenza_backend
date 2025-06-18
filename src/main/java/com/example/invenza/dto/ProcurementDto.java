@@ -1,10 +1,13 @@
 package com.example.invenza.dto;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.example.invenza.entity.Procurement;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import com.example.invenza.entity.Procurement;
 
 @Getter
 @Setter
@@ -21,8 +24,8 @@ public class ProcurementDto {
     private String supplierEmail;
     private String supplierPhone;
 
-    private LocalDate orderDate;
-    private LocalDate deadlineDate;
+    private LocalDateTime orderDate;
+    private LocalDateTime deadlineDate;
 
     private String employeeName;
     private String employeeId;

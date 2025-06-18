@@ -1,10 +1,16 @@
 package com.example.invenza.entity;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -26,14 +32,14 @@ public class Procurement {
     public BigDecimal getTotalCost() {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
-
+ 
     private String supplierName;
     private String supplierId;
     private String supplierEmail;
     private String supplierPhone;
 
-    private LocalDate orderDate;
-    private LocalDate deadlineDate;
+    private LocalDateTime orderDate;
+    private LocalDateTime deadlineDate;
 
     private String employeeName;
     private String employeeId;
