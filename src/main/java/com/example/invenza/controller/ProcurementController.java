@@ -47,40 +47,47 @@ public class ProcurementController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         log.info("getProcurementData params: {}", allParams);
         List<ProcurementDto> procurements = procurementService.getUndueProcurements(allParams);
-        List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
-            return Map.of(
-                "id", procurement.getId(),
-                "commodity", Map.of(
-                    "name", procurement.getCommodityName(),
-                    "type", procurement.getCommodityType(),
-                    "transactionValue", Map.of(
-                        "unitPrice", procurement.getUnitPrice(),
-                        "quantity", procurement.getQuantity(),
-                        "totalCost", procurement.getUnitPrice().multiply(BigDecimal.valueOf(procurement.getQuantity()))
+        try {
+            List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
+                return Map.of(
+                    "id", procurement.getId(),
+                    "commodity", Map.of(
+                        "name", procurement.getCommodityName(),
+                        "type", procurement.getCommodityType(),
+                        "transactionValue", Map.of(
+                            "unitPrice", procurement.getUnitPrice(),
+                            "quantity", procurement.getQuantity(),
+                            "totalCost", procurement.getUnitPrice().multiply(BigDecimal.valueOf(procurement.getQuantity()))
+                        )
+                    ),
+                    "supplier", Map.of(
+                        "name", procurement.getSupplierName(),
+                        "id", procurement.getSupplierId(),
+                        "association", Map.of(
+                            "email", procurement.getSupplierEmail(),
+                            "phone", procurement.getSupplierPhone()
+                        )
+                    ),
+                    "orderTimeStamp", procurement.getOrderDate().format(formatter),
+                    "deadlineTimeStamp", procurement.getDeadlineDate().format(formatter),
+                    "responsible", Map.of(
+                        "name", procurement.getEmployeeName(),
+                        "id", procurement.getEmployeeId(),
+                        "association", Map.of(
+                            "email", procurement.getEmployeeEmail(),
+                            "phone", procurement.getEmployeePhone()
+                        )
                     )
-                ),
-                "supplier", Map.of(
-                    "name", procurement.getSupplierName(),
-                    "id", procurement.getSupplierId(),
-                    "association", Map.of(
-                        "email", procurement.getSupplierEmail(),
-                        "phone", procurement.getSupplierPhone()
-                    )
-                ),
-                "orderTimeStamp", procurement.getOrderDate().format(formatter),
-                "deadlineTimeStamp", procurement.getDeadlineDate().format(formatter),
-                "responsible", Map.of(
-                    "name", procurement.getEmployeeName(),
-                    "id", procurement.getEmployeeId(),
-                    "association", Map.of(
-                        "email", procurement.getEmployeeEmail(),
-                        "phone", procurement.getEmployeePhone()
-                    )
-                )
-            );
-        }).collect(Collectors.toList());
-        // log.info("return: {}", responseList);
-        return ResponseEntity.ok(Map.of("data", responseList));
+                );
+            }).collect(Collectors.toList());
+            // log.info("return: {}", responseList);
+            return ResponseEntity.ok(Map.of("data", responseList));
+        } catch (Exception e) {
+            log.error("Error occurred while fetching procurement data", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+        
     }
     @PutMapping("/update-data")
     public ResponseEntity<?> updateProcurement(@RequestBody Map<String, Object> request) {
