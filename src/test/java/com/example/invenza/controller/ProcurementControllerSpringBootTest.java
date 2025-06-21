@@ -1,8 +1,7 @@
 package com.example.invenza.controller;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +14,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.invenza.entity.Procurement;
 import com.example.invenza.repository.ProcurementRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
-// @Transactional // 每個測試後回滾數據
+@Transactional // 每個測試後回滾數據
 @DisplayName("ProcurementController Spring Boot 完整容器整合測試")
 class ProcurementControllerSpringBootTest {
 
@@ -49,32 +52,17 @@ class ProcurementControllerSpringBootTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    
-    @BeforeEach
+      @BeforeEach
     void setUp() {
-        // 清空並準備測試數據
-        procurementRepository.deleteAll();
+        // 使用data-test.sql中的測試資料，不需要再手動建立資料
+        // 確保所有測試開始時數據庫狀態一致
+        // 這是由spring.sql.init.data-locations=classpath:data-test.sql配置自動載入的
         
-        Procurement sampleProcurement = new Procurement();
-        sampleProcurement.setCommodityName("整合測試電腦");
-        sampleProcurement.setCommodityType("3C產品");
-        sampleProcurement.setUnitPrice(new BigDecimal("35000"));
-        sampleProcurement.setQuantity(2);
-        sampleProcurement.setSupplierName("整合測試供應商");
-        sampleProcurement.setSupplierId("INT001");
-        sampleProcurement.setSupplierEmail("integration@test.com");
-        sampleProcurement.setSupplierPhone("02-1111-1111");
-        sampleProcurement.setOrderDate(LocalDateTime.now().minusDays(2));
-        sampleProcurement.setDeadlineDate(LocalDateTime.now().plusDays(15));
-        sampleProcurement.setEmployeeName("測試人員");
-        sampleProcurement.setEmployeeId("EMP001");
-        sampleProcurement.setEmployeeEmail("test@email.com");
-        sampleProcurement.setEmployeePhone("0911222333");
-        
-        // 保存到實際資料庫
-        procurementRepository.save(sampleProcurement);
+        // 如果需要在某些測試前檢查或修改初始資料，可以在此處理
+        // 例如驗證初始數據是否正確載入
+        log.info("測試開始 - 使用data-test.sql中的測試資料");
     }
-
+    
     @Test
     @DisplayName("整合測試 - GET /api/procurement/get-data 完整流程")
     void integrationTest_GetProcurementData_FullFlow() throws Exception {
@@ -84,25 +72,26 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json; charset=utf-8"))
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].commodity.name").value("整合測試電腦"))
-                .andExpect(jsonPath("$.data[0].commodity.type").value("3C產品"))
-                .andExpect(jsonPath("$.data[0].supplier.name").value("整合測試供應商"))
-                .andExpect(jsonPath("$.data[0].supplier.id").value("INT001"))
-                .andExpect(jsonPath("$.data[0].commodity.transactionValue.unitPrice").value(35000))
-                .andExpect(jsonPath("$.data[0].commodity.transactionValue.quantity").value(2))
-                .andExpect(jsonPath("$.data[0].commodity.transactionValue.totalCost").value(70000));
+                .andExpect(jsonPath("$.data.length()").value(2)) // data-test.sql中有3筆採購資料，但只有2筆未過期
+                .andExpect(jsonPath("$.data[0].commodity.name").exists())
+                .andExpect(jsonPath("$.data[0].commodity.type").exists())
+                .andExpect(jsonPath("$.data[0].supplier.name").exists())
+                .andExpect(jsonPath("$.data[0].supplier.id").exists())
+                .andExpect(jsonPath("$.data[0].commodity.transactionValue.unitPrice").exists())
+                .andExpect(jsonPath("$.data[0].commodity.transactionValue.quantity").exists())
+                .andExpect(jsonPath("$.data[0].commodity.transactionValue.totalCost").exists());
     }
-
+    
     @Test
     @DisplayName("整合測試 - 帶查詢參數的請求")
-    void integrationTest_GetProcurementDataWithParams() throws Exception {        // 測試存在的商品名稱
+    void integrationTest_GetProcurementDataWithParams() throws Exception {
+        // 測試存在的商品名稱 - 使用data-test.sql中的資料
         mockMvc.perform(get("/api/procurement/get-data")
-                .param("commodityName", "整合測試電腦")
+                .param("commodityName", "apple")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].commodity.name").value("整合測試電腦"));
+                .andExpect(jsonPath("$.data[0].commodity.name").value("apple"));
 
         // 測試不存在的商品名稱
         mockMvc.perform(get("/api/procurement/get-data")
@@ -111,43 +100,46 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(0));
     }
-
+    
     @Test
     @DisplayName("整合測試 - 測試供應商篩選")
-    void integrationTest_FilterBySupplier() throws Exception {        mockMvc.perform(get("/api/procurement/get-data")
-                .param("businessPartner", "整合測試供應商")
+    void integrationTest_FilterBySupplier() throws Exception {
+        mockMvc.perform(get("/api/procurement/get-data")
+                .param("businessPartner", "WEEE")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].supplier.name").value("整合測試供應商"));
+                .andExpect(jsonPath("$.data[0].supplier.name").value("WEEE"));
 
         mockMvc.perform(get("/api/procurement/get-data")
-                .param("businessPartnerId", "INT001")
+                .param("businessPartnerId", "W213")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].supplier.id").value("INT001"));
+                .andExpect(jsonPath("$.data[0].supplier.id").value("W213"));
     }
-
+    
     @Test
     @DisplayName("整合測試 - 測試商品類型篩選")
-    void integrationTest_FilterByCommodityType() throws Exception {        mockMvc.perform(get("/api/procurement/get-data")
-                .param("commodityType", "3C產品")
+    void integrationTest_FilterByCommodityType() throws Exception {
+        mockMvc.perform(get("/api/procurement/get-data")
+                .param("commodityType", "Z232")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].commodity.type").value("3C產品"));
+                .andExpect(jsonPath("$.data[0].commodity.type").value("Z232"));
 
         mockMvc.perform(get("/api/procurement/get-data")
-                .param("commodityType", "辦公用品")
+                .param("commodityType", "M414")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(0));
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].commodity.type").value("M414"))
+                .andExpect(jsonPath("$.data[1].commodity.type").value("M414"));
     }
 
     @Test
     @DisplayName("整合測試 - PUT /api/procurement/update-data 更新操作")
-    @Rollback(false)
     void integrationTest_UpdateProcurement() throws Exception {
 
         long id = procurementRepository.findAll().get(0).getId();
@@ -161,7 +153,7 @@ class ProcurementControllerSpringBootTest {
                     "type": "hhj",
                     "transactionValue": {
                     "unitPrice": 999.0,
-                    "quantity": 300,
+                    "quantity": 300.0,
                     "totalCost": 4995.0
                     }
                 },
@@ -230,48 +222,31 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").exists());
     }
-
+    
     @Test
     @DisplayName("整合測試 - 測試多筆資料的處理")
     void integrationTest_MultipleRecords() throws Exception {
-        // 新增第二筆測試資料
-        Procurement secondProcurement = new Procurement();
-        secondProcurement.setCommodityName("第二個商品");
-        secondProcurement.setCommodityType("辦公用品");
-        secondProcurement.setUnitPrice(new BigDecimal("1500"));
-        secondProcurement.setQuantity(10);
-        secondProcurement.setSupplierName("第二個供應商");
-        secondProcurement.setSupplierId("SEC001");
-        secondProcurement.setSupplierEmail("second@supplier.com");
-        secondProcurement.setSupplierPhone("02-2222-2222");
-        secondProcurement.setOrderDate(LocalDateTime.now().minusDays(1));
-        secondProcurement.setDeadlineDate(LocalDateTime.now().plusDays(20));
-        secondProcurement.setEmployeeName("測試人員");
-        secondProcurement.setEmployeeId("EMP001");
-        secondProcurement.setEmployeeEmail("test@email.com");
-        secondProcurement.setEmployeePhone("0911222333");
-        procurementRepository.save(secondProcurement);
 
-        // 驗證取得所有資料
+        // 直接驗證取得所有資料 - data-test.sql中已有3筆採購資料
         mockMvc.perform(get("/api/procurement/get-data")
                 .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(2));  // 直接驗證取得所有資料 - data-test.sql中已有3筆採購資料，但只有2筆未過期
+                
+        mockMvc.perform(get("/api/procurement/get-data")
+                .param("commodityType", "M414")
+                .header("Authorization", AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(2));
 
         // 驗證按類型篩選
         mockMvc.perform(get("/api/procurement/get-data")
-                .param("commodityType", "3C產品")
+                .param("commodityType", "Z232")
                 .header("Authorization", AUTH_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].commodity.name").value("整合測試電腦"));
+                .andExpect(jsonPath("$.data[0].commodity.name").value("apple"));
 
-        mockMvc.perform(get("/api/procurement/get-data")
-                .param("commodityType", "辦公用品")
-                .header("Authorization", AUTH_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].commodity.name").value("第二個商品"));
     }
 
     @Test
@@ -304,4 +279,115 @@ class ProcurementControllerSpringBootTest {
                 .header("Authorization", AUTH_TOKEN))
                 .andExpect(status().isNotFound()); // 空請求體應該被允許但不做任何操作
     }
+
+    @Test
+    @DisplayName("整合測試 - DELETE /api/procurement/delete-data 刪除操作")
+    void integrationTest_DeleteProcurement() throws Exception {
+        // 使用已知的ID (data-test.sql中定義的ID=1)
+        long id = 1L;
+        
+        // 執行刪除操作
+        mockMvc.perform(delete("/api/procurement/delete-data")
+                .param("id", String.valueOf(id))
+                .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                .andDo(print())
+                .andExpect(status().isOk());
+        
+        // 驗證資料已被刪除 - 檢查特定ID的資料是否不存在
+        mockMvc.perform(get("/api/procurement/get-data")
+                .param("commodityName", "apple")
+                .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("整合測試 - 刪除不存在id返回400")
+    void integrationTest_DeleteNonExistentProcurement_ShouldReturn400() throws Exception {
+        // 使用不存在的ID
+        mockMvc.perform(delete("/api/procurement/delete-data")
+                .param("id", "999999")
+                .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    @DisplayName("整合測試 - 新增資料")
+        void integrationTest_AddProcurement() throws Exception {
+                // 準備新增資料
+                long id = 13L;
+                List<Procurement> existingProcurements = procurementRepository.findAll();
+                for (Procurement procurement : existingProcurements) {
+                        if(procurement.getId() == id) {
+                                id += procurement.getId();
+                        }
+                }
+                String json = String.format("""
+                {
+                        "id": %d,
+                        "commodity": {
+                                "name": "jhgfdryhfghhfgjjhgszxvgj",
+                                "type": "hhj",
+                                "transactionValue": {
+                                "unitPrice": 999.0,
+                                "quantity": 300.0,
+                                "totalCost": 4995.0
+                                }
+                        },
+                        "supplier": {
+                                "name": "vbm",
+                                "id": "gj",
+                                "association": {
+                                "email": "h@gmail.com",
+                                "phone": "996"
+                                }
+                        },
+                        "orderTimeStamp": "2025-06-14 15:58",
+                        "deadlineTimeStamp": "2025-06-14 15:58",
+                        "responsible": {
+                                "name": "admin",
+                                "id": "F00001",
+                                "association": {
+                                "email": "admin@gmail.com",
+                                "phone": "0911222333"
+                                }
+                        }
+                }
+                """, id);
+
+                mockMvc.perform(post("/api/procurement/add-data")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                                .header("Authorization", AUTH_TOKEN))
+                        .andExpect(status().is(org.hamcrest.Matchers.oneOf(201, 200)));
+
+                // 驗證新增資料是否成功
+                mockMvc.perform(get("/api/procurement/get-data?commodityName=jhgfdryhfghhfgjjhgszxvgj")
+                                .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.length()").value(1))
+                        .andExpect(jsonPath("$.data[0].commodity.name").value("jhgfdryhfghhfgjjhgszxvgj"))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.unitPrice").value(999.0))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.quantity").value(300))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.totalCost").value(299700.0));
+        }
+
+        @Test
+        @DisplayName("整合測試 - 新增錯誤資料時應回復404")
+        void integrationTest_AddProcurementWithDuplicateId_ShouldReturn404() throws Exception {
+                String json = String.format("""
+                {
+                        
+                }
+                """);
+
+                mockMvc.perform(post("/api/procurement/add-data")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                                .header("Authorization", AUTH_TOKEN))
+                                .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.error").exists());
+        }
 }
