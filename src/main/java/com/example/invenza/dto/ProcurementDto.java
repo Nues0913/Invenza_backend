@@ -16,7 +16,7 @@ public class ProcurementDto {
     private String commodityName;
     private String commodityType;
     private BigDecimal unitPrice;
-    private int quantity;
+    private double quantity;
     private BigDecimal totalCost;
 
     private String supplierName;

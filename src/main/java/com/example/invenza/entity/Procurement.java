@@ -25,7 +25,7 @@ public class Procurement {
     private String commodityType;
 
     private BigDecimal unitPrice;
-    private int quantity;
+    private double quantity;
 
     // 不存入資料庫，動態計算
     @Transient

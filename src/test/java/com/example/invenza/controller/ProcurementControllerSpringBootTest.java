@@ -150,7 +150,7 @@ class ProcurementControllerSpringBootTest {
                     "type": "hhj",
                     "transactionValue": {
                     "unitPrice": 999.0,
-                    "quantity": 300,
+                    "quantity": 300.0,
                     "totalCost": 4995.0
                     }
                 },
