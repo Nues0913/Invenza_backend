@@ -186,11 +186,39 @@ public class ProcurementService {
 
         return dto;
     }
+
     public void deleteProcurementById(Long id) {
         Procurement procurement = procurementRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("找不到對應 ID 的採購資料"));
 
         procurementRepository.delete(procurement);
     }
+    public void addProcurement(Map<String, Object> request) {
+        ProcurementDto dto = flattenRequestToDto(request);
+        Procurement procurement = new Procurement();
+
+        // 基本欄位
+        procurement.setCommodityName(dto.getCommodityName());
+        procurement.setCommodityType(dto.getCommodityType());
+        procurement.setUnitPrice(dto.getUnitPrice());
+        procurement.setQuantity(dto.getQuantity());
+        procurement.setOrderDate(dto.getOrderDate());
+        procurement.setDeadlineDate(dto.getDeadlineDate());
+
+        // 設定供應商欄位（直接儲存進 procurement，無需資料庫查詢）
+        procurement.setSupplierName(dto.getSupplierName());
+        procurement.setSupplierId(dto.getSupplierId());
+        procurement.setSupplierEmail(dto.getSupplierEmail());
+        procurement.setSupplierPhone(dto.getSupplierPhone());
+
+        // 查詢並綁定負責人（員工）資訊（這邊仍要驗證存在）
+        procurement.setEmployeeName(dto.getEmployeeName());
+        procurement.setEmployeeId(dto.getEmployeeId());
+        procurement.setEmployeeEmail(dto.getEmployeeEmail());
+        procurement.setEmployeePhone(dto.getEmployeePhone());
+        // 儲存
+        procurementRepository.save(procurement);
+    }
+
 
 }

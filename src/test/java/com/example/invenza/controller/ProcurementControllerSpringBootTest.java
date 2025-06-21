@@ -1,6 +1,7 @@
 package com.example.invenza.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.invenza.entity.Procurement;
 import com.example.invenza.repository.ProcurementRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -308,4 +311,83 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists());
     }
+
+    @Test
+    @DisplayName("整合測試 - 新增資料")
+        void integrationTest_AddProcurement() throws Exception {
+                // 準備新增資料
+                long id = 13L;
+                List<Procurement> existingProcurements = procurementRepository.findAll();
+                for (Procurement procurement : existingProcurements) {
+                        if(procurement.getId() == id) {
+                                id += procurement.getId();
+                        }
+                }
+                String json = String.format("""
+                {
+                        "id": %d,
+                        "commodity": {
+                                "name": "jhgfdryhfghhfgjjhgszxvgj",
+                                "type": "hhj",
+                                "transactionValue": {
+                                "unitPrice": 999.0,
+                                "quantity": 300.0,
+                                "totalCost": 4995.0
+                                }
+                        },
+                        "supplier": {
+                                "name": "vbm",
+                                "id": "gj",
+                                "association": {
+                                "email": "h@gmail.com",
+                                "phone": "996"
+                                }
+                        },
+                        "orderTimeStamp": "2025-06-14 15:58",
+                        "deadlineTimeStamp": "2025-06-14 15:58",
+                        "responsible": {
+                                "name": "admin",
+                                "id": "F00001",
+                                "association": {
+                                "email": "admin@gmail.com",
+                                "phone": "0911222333"
+                                }
+                        }
+                }
+                """, id);
+
+                mockMvc.perform(post("/api/procurement/add-data")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                                .header("Authorization", AUTH_TOKEN))
+                        .andExpect(status().is(org.hamcrest.Matchers.oneOf(201, 200)));
+
+                // 驗證新增資料是否成功
+                mockMvc.perform(get("/api/procurement/get-data?commodityName=jhgfdryhfghhfgjjhgszxvgj")
+                                .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.length()").value(1))
+                        .andExpect(jsonPath("$.data[0].commodity.name").value("jhgfdryhfghhfgjjhgszxvgj"))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.unitPrice").value(999.0))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.quantity").value(300))
+                        .andExpect(jsonPath("$.data[0].commodity.transactionValue.totalCost").value(299700.0));
+        }
+
+        @Test
+        @DisplayName("整合測試 - 新增錯誤資料時應回復404")
+        void integrationTest_AddProcurementWithDuplicateId_ShouldReturn404() throws Exception {
+                String json = String.format("""
+                {
+                        
+                }
+                """);
+
+                mockMvc.perform(post("/api/procurement/add-data")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                                .header("Authorization", AUTH_TOKEN))
+                                .andDo(result -> log.info("Response: {}", result.getResponse().getContentAsString()))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.error").exists());
+        }
 }
