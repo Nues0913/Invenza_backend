@@ -63,6 +63,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>   
@@ -98,7 +103,7 @@
 
 	<build>
 		<plugins>
-			<plugin>
+				<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -120,6 +125,18 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+					<argLine>-Xmx1024m</argLine>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
 				</configuration>
 			</plugin>
 		</plugins>
