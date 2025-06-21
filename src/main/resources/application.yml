@@ -19,7 +19,7 @@ jwt:
   secret-key: "a8f4c2e7b1d9f6g3h5j2k8l0q6w4z7x1"
   valid-seconds: 3600
 server:
-  address: 127.0.0.1
+  address: 0.0.0.0
   port: 8080
 logging:
   level:
