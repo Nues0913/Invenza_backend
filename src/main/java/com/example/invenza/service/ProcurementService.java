@@ -162,7 +162,7 @@ public class ProcurementService {
         dto.setCommodityType(commodity.get("type").toString());
         Map<String, Object> transactionValue = (Map<String, Object>) commodity.get("transactionValue");
         dto.setUnitPrice(new BigDecimal(transactionValue.get("unitPrice").toString()));
-        dto.setQuantity(Integer.parseInt(transactionValue.get("quantity").toString()));
+        dto.setQuantity(Double.parseDouble(transactionValue.get("quantity").toString()));
         dto.setTotalCost(new BigDecimal(transactionValue.get("totalCost").toString()));
 
         Map<String, Object> supplier = (Map<String, Object>) request.get("supplier");
