@@ -96,6 +96,7 @@ public class ProcurementController {
             procurementService.updateProcurementFromMap(request);
             return ResponseEntity.ok().build(); // 200 不回傳資料
         } catch (Exception e) {
+            log.error("Error occurred while updating procurement data", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage())); // 404 錯誤處理
         }

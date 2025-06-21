@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # Spring Boot 應用服務
+  app:
+    build: .
+    container_name: invenza-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/invenza_db?useSSL=false&serverTimezone=Asia/Taipei&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=invenza
+      - SPRING_DATASOURCE_PASSWORD=invenza2025
+    # 新增extra_hosts讓容器可以連接到宿主機
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

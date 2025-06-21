@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: invenza
+  datasource:
+    # 連接到本機的MySQL伺服器，使用專用使用者和資料庫
+    url: jdbc:mysql://host.docker.internal:3306/invenza_db?useSSL=false&serverTimezone=Asia/Taipei&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: invenza
+    password: invenza2025
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 設定連線池
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+  sql:
+    init:
+      mode: never
+  # 新增Actuator用於健康檢查
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
+    endpoint:
+      health:
+        show-details: always
+        
+jwt:
+  secret-key: "a8f4c2e7b1d9f6g3h5j2k8l0q6w4z7x1"
+  valid-seconds: 360000
+  
+server:
+  address: 0.0.0.0
+  port: 8080
+  
+logging:
+  level:
+    root: INFO
+    com.example.invenza: INFO
+    org.springframework.security: INFO
