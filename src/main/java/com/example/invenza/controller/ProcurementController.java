@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -99,5 +100,15 @@ public class ProcurementController {
                     .body(Map.of("error", e.getMessage())); // 404 錯誤處理
         }
     }
+    @DeleteMapping("/delete-data")
+    public ResponseEntity<?> deleteProcurement(@RequestParam Long id) {
+        try {
+            procurementService.deleteProcurementById(id);
+            return ResponseEntity.ok().build(); // 200 無內容
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage())); // 400 有錯誤訊息
+        }
+    }
+
 }
 

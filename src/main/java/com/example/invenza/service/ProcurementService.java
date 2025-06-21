@@ -186,5 +186,11 @@ public class ProcurementService {
 
         return dto;
     }
+    public void deleteProcurementById(Long id) {
+        Procurement procurement = procurementRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("找不到對應 ID 的採購資料"));
+
+        procurementRepository.delete(procurement);
+    }
 
 }
