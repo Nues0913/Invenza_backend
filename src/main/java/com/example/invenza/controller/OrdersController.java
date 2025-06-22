@@ -17,58 +17,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.invenza.dto.ProcurementDto;
-import com.example.invenza.service.ProcurementService;
+import com.example.invenza.dto.OrdersDto;
+import com.example.invenza.service.OrdersService;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
-@RequestMapping("/api/procurement")
-public class ProcurementController {
+@RequestMapping("/api/sales")
 
-    private final ProcurementService procurementService;
+public class OrdersController {
+    private final OrdersService ordersService;
 
-    public ProcurementController(ProcurementService procurementService) {
-        this.procurementService = procurementService;
+    public OrdersController(OrdersService ordersService) {
+        this.ordersService = ordersService;
     }
-    
     @GetMapping(value = "/get-data", produces = "application/json; charset=utf-8")
-    public ResponseEntity<Map<String, Object>> getProcurementData(
-        @RequestParam(required = false) Map<String, String> allParams
-    ) {
-        log.debug("/get-data called with params: {}", allParams);
+    public ResponseEntity<Map<String, Object>> getOrdersData(@RequestParam(required = false) Map<String, String> allParams) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        List<ProcurementDto> procurements = procurementService.getUndueProcurements(allParams);
+        log.info("getOrdersData params: {}", allParams);
+        List<OrdersDto> orderss = ordersService.getUndueOrders(allParams);
         try {
-            List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
+            List<Map<String, Object>> responseList = orderss.stream().map(orders -> {
                 return Map.of(
-                    "id", procurement.getId(),
                     "commodity", Map.of(
-                        "name", procurement.getCommodityName(),
-                        "type", procurement.getCommodityType(),
+                        "name", orders.getCommodityName(),
                         "transactionValue", Map.of(
-                            "unitPrice", procurement.getUnitPrice(),
-                            "quantity", procurement.getQuantity(),
-                            "totalCost", procurement.getUnitPrice().multiply(BigDecimal.valueOf(procurement.getQuantity()))
-                        )
+                            "unitPrice", orders.getUnitPrice(),
+                            "quantity", orders.getQuantity(),
+                            "totalCost", orders.getUnitPrice().multiply(BigDecimal.valueOf(orders.getQuantity()))
+                        ),
+                        "type", orders.getCommodityType()
                     ),
-                    "supplier", Map.of(
-                        "name", procurement.getSupplierName(),
-                        "id", procurement.getSupplierId(),
+                    "deadlineTimeStamp", orders.getDeadlineDate().format(formatter),
+                    "distributor", Map.of(
                         "association", Map.of(
-                            "email", procurement.getSupplierEmail(),
-                            "phone", procurement.getSupplierPhone()
-                        )
+                            "email", orders.getDealerEmail(),
+                            "phone", orders.getDealerPhone()
+                        ),
+                        "id", orders.getDealerId(),
+                        "name", orders.getDealerName()
                     ),
-                    "orderTimeStamp", procurement.getOrderDate().format(formatter),
-                    "deadlineTimeStamp", procurement.getDeadlineDate().format(formatter),
+                    "id", orders.getId(),
+                    "orderTimeStamp", orders.getOrderDate().format(formatter),
                     "responsible", Map.of(
-                        "name", procurement.getEmployeeName(),
-                        "id", procurement.getEmployeeId(),
                         "association", Map.of(
-                            "email", procurement.getEmployeeEmail(),
-                            "phone", procurement.getEmployeePhone()
-                        )
+                            "email", orders.getEmployeeEmail(),
+                            "phone", orders.getEmployeePhone()
+                        ),
+                        "id", orders.getEmployeeId(),
+                        "name", orders.getEmployeeName()
                     )
                 );
             }).collect(Collectors.toList());
@@ -78,14 +75,13 @@ public class ProcurementController {
             log.error("/get-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
-        }
-        
+        }        
     }
     @PutMapping("/update-data")
-    public ResponseEntity<?> updateProcurement(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateOrders(@RequestBody Map<String, Object> request) {
         try {
             log.debug("/update-data called with request: {}", request);
-            procurementService.updateProcurementFromMap(request);
+            ordersService.updateOrdersFromMap(request);
             return ResponseEntity.ok().build(); // 200 不回傳資料
         } catch (Exception e) {
             log.error("/update-data {}: {}", e.getClass().getName(), e.getMessage());
@@ -94,10 +90,10 @@ public class ProcurementController {
         }
     }
     @DeleteMapping("/delete-data")
-    public ResponseEntity<?> deleteProcurement(@RequestParam Long id) {
+    public ResponseEntity<?> deleteOrders(@RequestParam Long id) {
         try {
             log.debug("/delete-data called with request: {}", id);
-            procurementService.deleteProcurementById(id);
+            ordersService.deleteOrdersById(id);
             return ResponseEntity.ok().build(); // 200 無內容
         } catch (IllegalArgumentException e) {
             log.error("/delete-data {}: {}", e.getClass().getName(), e.getMessage());
@@ -105,10 +101,10 @@ public class ProcurementController {
         }
     }
     @PostMapping("/add-data")
-    public ResponseEntity<?> addProcurement(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> addOrders(@RequestBody Map<String, Object> request) {
         try {
             log.debug("/add-data called with request: {}", request);
-            procurementService.addProcurement(request);
+            ordersService.addOrders(request);
             return ResponseEntity.ok().build(); // 200，無回傳資料
         } catch (Exception e) {
             log.error("/add-data {}: {}", e.getClass().getName(), e.getMessage());
@@ -117,4 +113,3 @@ public class ProcurementController {
         }
     }
 }
-

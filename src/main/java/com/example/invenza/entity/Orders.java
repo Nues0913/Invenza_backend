@@ -41,4 +41,9 @@ public class Orders {
 
     private LocalDateTime orderDate;
     private LocalDateTime deadlineDate;
+
+    private String employeeName;
+    private String employeeId;
+    private String employeeEmail;
+    private String employeePhone;
 }

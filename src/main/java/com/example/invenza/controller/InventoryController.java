@@ -32,6 +32,7 @@ public class InventoryController {
         @RequestParam(required = false) Map<String, String> allParams
     ) {
         try {
+            log.debug("/get-data called");
             List<CommodityDto> commodities = inventoryService.getAllCommoditys(allParams);
             List<Map<String, Object>> responseList = commodities.stream().map(commodity -> {
                 return Map.of(
@@ -47,10 +48,10 @@ public class InventoryController {
             }).collect(Collectors.toList());
             return ResponseEntity.ok(Map.of("data", responseList));
         } catch (Exception e) {
+            log.error("/get-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage())); // 404，附錯誤訊息
         }
-
     }
 
 }

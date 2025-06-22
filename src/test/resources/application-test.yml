@@ -1,23 +1,21 @@
 # Spring Boot 測試環境配置
-spring:
-  # 使用內存資料庫進行測試
+spring:  # 使用內存資料庫進行測試
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     driver-class-name: org.h2.Driver
     username: sa
     password: 
-  
-  # SQL 初始化配置
-  sql:
-    init:
-      mode: embedded
-      # schema-locations: classpath:schema-test.sql  # 定義架構檔案位置
-      data-locations: classpath:data-test.sql      # 定義資料檔案位置
+    # SQL 初始化配置
+    sql:
+      init:
+        mode: always
+        schema-locations: classpath:schema-test.sql  # 定義架構檔案位置
+        data-locations: classpath:data-test.sql      # 定義資料檔案位置
       
   # JPA 配置
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     defer-datasource-initialization: true # 確保先建立JPA實體再執行資料初始化
     show-sql: true
     properties:

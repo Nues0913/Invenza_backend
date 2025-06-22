@@ -6,45 +6,42 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.example.invenza.dto.ProcurementDto;
-import com.example.invenza.entity.Procurement;
-import com.example.invenza.repository.ProcurementRepository;
+import com.example.invenza.dto.OrdersDto;
+import com.example.invenza.entity.Orders;
+import com.example.invenza.repository.OrdersRepository;
 
 import jakarta.persistence.criteria.Predicate;
 
 @Service
-public class ProcurementService {
+public class OrdersService {
+    private final OrdersRepository ordersRepository;
 
-    private final ProcurementRepository procurementRepository;
-
-    public ProcurementService(ProcurementRepository procurementRepository) {
-        this.procurementRepository = procurementRepository;
+    public OrdersService(OrdersRepository ordersRepository) {
+        this.ordersRepository = ordersRepository;
     }
 
-    public List<ProcurementDto> getAllProcurements() {
-        List<Procurement> procurements = procurementRepository.findAll();
+    public List<OrdersDto> getAllOrderss() {
+        List<Orders> orderss = ordersRepository.findAll();
 
-        return procurements.stream().map(p -> {
-            ProcurementDto dto = new ProcurementDto();
+        return orderss.stream().map(p -> {
+            OrdersDto dto = new OrdersDto();
             dto.setId(p.getId());
             dto.setCommodityName(p.getCommodityName());
             dto.setCommodityType(p.getCommodityType());
             dto.setUnitPrice(p.getUnitPrice());
             dto.setQuantity(p.getQuantity());
-            dto.setTotalCost(p.getTotalCost());
+            dto.setTotalCost(p.getTotalPrice());
 
-            dto.setSupplierName(p.getSupplierName());
-            dto.setSupplierId(p.getSupplierId());
-            dto.setSupplierEmail(p.getSupplierEmail());
-            dto.setSupplierPhone(p.getSupplierPhone());
-
+            dto.setDealerName(p.getDealerName());
+            dto.setDealerId(p.getDealerId());
+            dto.setDealerEmail(p.getDealerEmail());
+            dto.setDealerPhone(p.getDealerPhone());
             dto.setOrderDate(p.getOrderDate());
             dto.setDeadlineDate(p.getDeadlineDate());
 
@@ -57,20 +54,19 @@ public class ProcurementService {
             return dto;
         }).toList();
     }
-
-    public List<ProcurementDto> getUndueProcurements() {
+    public List<OrdersDto> getUndueOrders() {
         LocalDateTime now = LocalDateTime.now();
-        List<Procurement> procurements =  procurementRepository.findByDeadlineDateAfter(now);
-        return procurements.stream()
-        .map(ProcurementDto::of)
+        List<Orders> orders =  ordersRepository.findByDeadlineDateAfter(now);
+        return orders.stream()
+        .map(OrdersDto::of)
         .collect(Collectors.toList());
     }
 
-    public List<ProcurementDto> getUndueProcurements(Map<String, String> allParams) {
+    public List<OrdersDto> getUndueOrders(Map<String, String> allParams) {
         if(allParams == null || allParams.isEmpty()) {
-            return getUndueProcurements();
+            return getUndueOrders();
         }
-        Specification<Procurement> spec = (root, query, builder) -> {
+        Specification<Orders> spec = (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -84,10 +80,10 @@ public class ProcurementService {
 
             // businessPartner predicates
             if (allParams.containsKey("businessPartner") && allParams.get("businessPartner") != null) {
-                predicates.add(builder.equal(root.get("supplierName"), allParams.get("businessPartner")));
+                predicates.add(builder.equal(root.get("dealerName"), allParams.get("businessPartner")));
             }
             if (allParams.containsKey("businessPartnerId") && allParams.get("businessPartnerId") != null) {
-                predicates.add(builder.equal(root.get("supplierId"), allParams.get("businessPartnerId")));
+                predicates.add(builder.equal(root.get("dealerId"), allParams.get("businessPartnerId")));
             }
 
             // responsible predicates
@@ -114,52 +110,51 @@ public class ProcurementService {
             query.where(builder.and(predicates.toArray(Predicate[]::new)));
             return query.getRestriction();
         };
-        List<Procurement> procurements = procurementRepository.findAll(spec);
-        return procurements.stream()
-            .map(ProcurementDto::of)
+        List<Orders> orderss = ordersRepository.findAll(spec);
+        return orderss.stream()
+            .map(OrdersDto::of)
             .collect(Collectors.toList());
     }
-    public void updateProcurementFromMap(Map<String, Object> request) {
-        ProcurementDto dto = flattenRequestToDto(request);
+    public void updateOrdersFromMap(Map<String, Object> request) {
+        OrdersDto dto = flattenRequestToDto(request);
 
-        Optional<Procurement> optional = procurementRepository.findById(dto.getId());
+        Optional<Orders> optional = ordersRepository.findById(dto.getId());
         if (optional.isEmpty()) {
-            throw new RuntimeException("Procurement not found with ID: " + dto.getId());
+            throw new RuntimeException("orders not found with ID: " + dto.getId());
         }
 
-        Procurement procurement = optional.get();
+        Orders orders = optional.get();
         // 資料寫入 entity
-        procurement.setCommodityName(dto.getCommodityName());
-        procurement.setCommodityType(dto.getCommodityType());
-        procurement.setUnitPrice(dto.getUnitPrice());
-        procurement.setQuantity(dto.getQuantity());
+        orders.setCommodityName(dto.getCommodityName());
+        orders.setCommodityType(dto.getCommodityType());
+        orders.setUnitPrice(dto.getUnitPrice());
+        orders.setQuantity(dto.getQuantity());
 
-        procurement.setSupplierName(dto.getSupplierName());
-        procurement.setSupplierId(dto.getSupplierId());
-        procurement.setSupplierEmail(dto.getSupplierEmail());
-        procurement.setSupplierPhone(dto.getSupplierPhone());
+        orders.setDealerName(dto.getDealerName());
+        orders.setDealerId(dto.getDealerId());
+        orders.setDealerEmail(dto.getDealerEmail());
+        orders.setDealerPhone(dto.getDealerPhone());
 
-        procurement.setOrderDate(dto.getOrderDate());
-        procurement.setDeadlineDate(dto.getDeadlineDate());
+        orders.setOrderDate(dto.getOrderDate());
+        orders.setDeadlineDate(dto.getDeadlineDate());
 
-        procurement.setEmployeeName(dto.getEmployeeName());
-        procurement.setEmployeeId(dto.getEmployeeId());
-        procurement.setEmployeeEmail(dto.getEmployeeEmail());
-        procurement.setEmployeePhone(dto.getEmployeePhone());
+        orders.setEmployeeName(dto.getEmployeeName());
+        orders.setEmployeeId(dto.getEmployeeId());
+        orders.setEmployeeEmail(dto.getEmployeeEmail());
+        orders.setEmployeePhone(dto.getEmployeePhone());
 
-        procurementRepository.save(procurement); // 寫入資料庫
+        ordersRepository.save(orders); // 寫入資料庫
     }
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public ProcurementDto flattenRequestToDto(Map<String, Object> request) {
-        ProcurementDto dto = new ProcurementDto();
+    public OrdersDto flattenRequestToDto(Map<String, Object> request) {
+        OrdersDto dto = new OrdersDto();
 
         Object idObj = request.get("id");
         if (idObj != null) {
             dto.setId(Long.valueOf(idObj.toString()));
         }
-
 
         Map<String, Object> commodity = (Map<String, Object>) request.get("commodity");
         dto.setCommodityName(commodity.get("name").toString());
@@ -169,12 +164,12 @@ public class ProcurementService {
         dto.setQuantity(Double.parseDouble(transactionValue.get("quantity").toString()));
         dto.setTotalCost(new BigDecimal(transactionValue.get("totalCost").toString()));
 
-        Map<String, Object> supplier = (Map<String, Object>) request.get("supplier");
-        dto.setSupplierName(supplier.get("name").toString());
-        dto.setSupplierId(supplier.get("id").toString());
-        Map<String, Object> supplierAssoc = (Map<String, Object>) supplier.get("association");
-        dto.setSupplierEmail(supplierAssoc.get("email").toString());
-        dto.setSupplierPhone(supplierAssoc.get("phone").toString());
+        Map<String, Object> distributor = (Map<String, Object>) request.get("distributor");
+        dto.setDealerName(distributor.get("name").toString());
+        dto.setDealerId(distributor.get("id").toString());
+        Map<String, Object> DealerAssoc = (Map<String, Object>) distributor.get("association");
+        dto.setDealerEmail(DealerAssoc.get("email").toString());
+        dto.setDealerPhone(DealerAssoc.get("phone").toString());
 
         Map<String, Object> responsible = (Map<String, Object>) request.get("responsible");
         dto.setEmployeeName(responsible.get("name").toString());
@@ -190,39 +185,36 @@ public class ProcurementService {
 
         return dto;
     }
-
-    public void deleteProcurementById(Long id) {
-        Procurement procurement = procurementRepository.findById(id)
+    public void deleteOrdersById(Long id) {
+        Orders orders = ordersRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("找不到對應 ID 的採購資料"));
 
-        procurementRepository.delete(procurement);
+        ordersRepository.delete(orders);
     }
-    public void addProcurement(Map<String, Object> request) {
-        ProcurementDto dto = flattenRequestToDto(request);
-        Procurement procurement = new Procurement();
+    public void addOrders(Map<String, Object> request) {
+        OrdersDto dto = flattenRequestToDto(request);
+        Orders orders = new Orders();
 
         // 基本欄位
-        procurement.setCommodityName(dto.getCommodityName());
-        procurement.setCommodityType(dto.getCommodityType());
-        procurement.setUnitPrice(dto.getUnitPrice());
-        procurement.setQuantity(dto.getQuantity());
-        procurement.setOrderDate(dto.getOrderDate());
-        procurement.setDeadlineDate(dto.getDeadlineDate());
+        orders.setCommodityName(dto.getCommodityName());
+        orders.setCommodityType(dto.getCommodityType());
+        orders.setUnitPrice(dto.getUnitPrice());
+        orders.setQuantity(dto.getQuantity());
+        orders.setOrderDate(dto.getOrderDate());
+        orders.setDeadlineDate(dto.getDeadlineDate());
 
-        // 設定供應商欄位（直接儲存進 procurement，無需資料庫查詢）
-        procurement.setSupplierName(dto.getSupplierName());
-        procurement.setSupplierId(dto.getSupplierId());
-        procurement.setSupplierEmail(dto.getSupplierEmail());
-        procurement.setSupplierPhone(dto.getSupplierPhone());
+        // 設定供應商欄位（直接儲存進 Orders，無需資料庫查詢）
+        orders.setDealerName(dto.getDealerName());
+        orders.setDealerId(dto.getDealerId());
+        orders.setDealerEmail(dto.getDealerEmail());
+        orders.setDealerPhone(dto.getDealerPhone());
 
         // 查詢並綁定負責人（員工）資訊（這邊仍要驗證存在）
-        procurement.setEmployeeName(dto.getEmployeeName());
-        procurement.setEmployeeId(dto.getEmployeeId());
-        procurement.setEmployeeEmail(dto.getEmployeeEmail());
-        procurement.setEmployeePhone(dto.getEmployeePhone());
+        orders.setEmployeeName(dto.getEmployeeName());
+        orders.setEmployeeId(dto.getEmployeeId());
+        orders.setEmployeeEmail(dto.getEmployeeEmail());
+        orders.setEmployeePhone(dto.getEmployeePhone());
         // 儲存
-        procurementRepository.save(procurement);
+        ordersRepository.save(orders);
     }
-
-
 }
