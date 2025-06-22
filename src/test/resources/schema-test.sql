@@ -52,5 +52,9 @@ CREATE TABLE IF NOT EXISTS orders (
     dealer_email VARCHAR(100),
     dealer_phone VARCHAR(20),
     order_date TIMESTAMP,
-    deadline_date TIMESTAMP
+    deadline_date TIMESTAMP,
+    employee_name VARCHAR(100),
+    employee_id VARCHAR(50),
+    employee_email VARCHAR(100),
+    employee_phone VARCHAR(20)
 );
