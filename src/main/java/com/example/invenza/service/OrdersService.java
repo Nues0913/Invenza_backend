@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -164,10 +164,10 @@ public class OrdersService {
         dto.setQuantity(Double.parseDouble(transactionValue.get("quantity").toString()));
         dto.setTotalCost(new BigDecimal(transactionValue.get("totalCost").toString()));
 
-        Map<String, Object> Dealer = (Map<String, Object>) request.get("Dealer");
-        dto.setDealerName(Dealer.get("name").toString());
-        dto.setDealerId(Dealer.get("id").toString());
-        Map<String, Object> DealerAssoc = (Map<String, Object>) Dealer.get("association");
+        Map<String, Object> distributor = (Map<String, Object>) request.get("distributor");
+        dto.setDealerName(distributor.get("name").toString());
+        dto.setDealerId(distributor.get("id").toString());
+        Map<String, Object> DealerAssoc = (Map<String, Object>) distributor.get("association");
         dto.setDealerEmail(DealerAssoc.get("email").toString());
         dto.setDealerPhone(DealerAssoc.get("phone").toString());
 
