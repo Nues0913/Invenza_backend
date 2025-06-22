@@ -34,16 +34,6 @@ public class ProcurementController {
     
     @GetMapping(value = "/get-data", produces = "application/json; charset=utf-8")
     public ResponseEntity<Map<String, Object>> getProcurementData(
-        // @RequestParam(required = false) String commodityName,
-        // @RequestParam(required = false) String commodityType,
-        // @RequestParam(required = false) String businessPartner,
-        // @RequestParam(required = false) String businessPartnerId,
-        // @RequestParam(required = false) String orderTimeStart,
-        // @RequestParam(required = false) String orderTimeEnd,
-        // @RequestParam(required = false) String deadlineStart,
-        // @RequestParam(required = false) String deadlineEnd,
-        // @RequestParam(required = false) String responsible,
-        // @RequestParam(required = false) String responsibleId,
         @RequestParam(required = false) Map<String, String> allParams
     ) {
         log.debug("/get-data called with params: {}", allParams);
