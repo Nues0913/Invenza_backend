@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,7 +72,7 @@ public class OrdersController {
             // log.info("return: {}", responseList);
             return ResponseEntity.ok(Map.of("data", responseList));
         } catch (Exception e) {
-            log.error("Error occurred while fetching orders data", e);
+            log.error("/get-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }        
@@ -80,10 +80,11 @@ public class OrdersController {
     @PutMapping("/update-data")
     public ResponseEntity<?> updateOrders(@RequestBody Map<String, Object> request) {
         try {
+            log.debug("/update-data called with request: {}", request);
             ordersService.updateOrdersFromMap(request);
             return ResponseEntity.ok().build(); // 200 不回傳資料
         } catch (Exception e) {
-            log.error("Error occurred while updating Orders data", e.getMessage());
+            log.error("/update-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage())); // 404 錯誤處理
         }
@@ -91,18 +92,22 @@ public class OrdersController {
     @DeleteMapping("/delete-data")
     public ResponseEntity<?> deleteOrders(@RequestParam Long id) {
         try {
+            log.debug("/delete-data called with request: {}", id);
             ordersService.deleteOrdersById(id);
             return ResponseEntity.ok().build(); // 200 無內容
         } catch (IllegalArgumentException e) {
+            log.error("/delete-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage())); // 400 有錯誤訊息
         }
     }
     @PostMapping("/add-data")
     public ResponseEntity<?> addOrders(@RequestBody Map<String, Object> request) {
         try {
+            log.debug("/add-data called with request: {}", request);
             ordersService.addOrders(request);
             return ResponseEntity.ok().build(); // 200，無回傳資料
         } catch (Exception e) {
+            log.error("/add-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(Map.of("error", e.getMessage())); // 404，附錯誤訊息
         }

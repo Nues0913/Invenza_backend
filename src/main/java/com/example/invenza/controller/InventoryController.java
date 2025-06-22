@@ -27,6 +27,7 @@ public class InventoryController {
     
     @GetMapping(value = "/get-data", produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getInventoryData() {
+        log.debug("/get-data called");
         List<CommodityDto> commodities = inventoryService.getAllCommoditys();
         List<Map<String, Object>> responseList = commodities.stream().map(commodity -> {
         return Map.of(

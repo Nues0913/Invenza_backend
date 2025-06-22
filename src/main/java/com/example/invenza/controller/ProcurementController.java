@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,8 +46,8 @@ public class ProcurementController {
         // @RequestParam(required = false) String responsibleId,
         @RequestParam(required = false) Map<String, String> allParams
     ) {
+        log.debug("/get-data called with params: {}", allParams);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        log.info("getProcurementData params: {}", allParams);
         List<ProcurementDto> procurements = procurementService.getUndueProcurements(allParams);
         try {
             List<Map<String, Object>> responseList = procurements.stream().map(procurement -> {
@@ -85,7 +85,7 @@ public class ProcurementController {
             // log.info("return: {}", responseList);
             return ResponseEntity.ok(Map.of("data", responseList));
         } catch (Exception e) {
-            log.error("Error occurred while fetching procurement data", e);
+            log.error("/get-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
@@ -94,10 +94,11 @@ public class ProcurementController {
     @PutMapping("/update-data")
     public ResponseEntity<?> updateProcurement(@RequestBody Map<String, Object> request) {
         try {
+            log.debug("/update-data called with request: {}", request);
             procurementService.updateProcurementFromMap(request);
             return ResponseEntity.ok().build(); // 200 不回傳資料
         } catch (Exception e) {
-            log.error("Error occurred while updating procurement data", e.getMessage());
+            log.error("/update-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage())); // 404 錯誤處理
         }
@@ -105,18 +106,22 @@ public class ProcurementController {
     @DeleteMapping("/delete-data")
     public ResponseEntity<?> deleteProcurement(@RequestParam Long id) {
         try {
+            log.debug("/delete-data called with request: {}", id);
             procurementService.deleteProcurementById(id);
             return ResponseEntity.ok().build(); // 200 無內容
         } catch (IllegalArgumentException e) {
+            log.error("/delete-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage())); // 400 有錯誤訊息
         }
     }
     @PostMapping("/add-data")
     public ResponseEntity<?> addProcurement(@RequestBody Map<String, Object> request) {
         try {
+            log.debug("/add-data called with request: {}", request);
             procurementService.addProcurement(request);
             return ResponseEntity.ok().build(); // 200，無回傳資料
         } catch (Exception e) {
+            log.error("/add-data {}: {}", e.getClass().getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(Map.of("error", e.getMessage())); // 404，附錯誤訊息
         }

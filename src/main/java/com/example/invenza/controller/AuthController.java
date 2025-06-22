@@ -35,15 +35,16 @@ public class AuthController {
     @GetMapping("/who-am-i")
     public ResponseEntity<?> whoAmI() {
         try {
+            log.debug("/who-am-i called");
             var response = authService.getCurrentUser();
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            log.debug("/who-am-i {}: {}", e.getClass().getName(), e.getMessage());
+            log.error("/who-am-i {}: {}", e.getClass().getName(), e.getMessage());
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", Constants.INVALID_TOKEN_MESSAGE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         } catch (Exception e) {
-            log.warn("/who-am-i {}: {}", e.getClass().getName(), e.getMessage());
+            log.error("/who-am-i {}: {}", e.getClass().getName(), e.getMessage());
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", Constants.UNKNOWN_ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -53,6 +54,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
+            log.debug("/login called with request: {}", request);
             LoginResponse response = authService.authenticate(request);
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
@@ -70,6 +72,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        log.debug("/forgot-password called with request: {}", request);
         String email = request.get("email");
         if (email == null || email.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Constants.MISSING_EMAIL_MESSAGE);
