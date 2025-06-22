@@ -38,10 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 @Slf4j
 @Transactional // 每個測試後回滾數據
-@DisplayName("ProcurementController Spring Boot 完整容器整合測試")
+@DisplayName("整合測試 - ProcurementController Spring Boot 測試")
 class ProcurementControllerSpringBootTest {
 
-    private static final String AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJGMDAwMDEiLCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6InVzZXIxQGVtYWlsLmNvbSIsInBob25lIjoiMDkxMjM0NTY3OCIsInJvbGUiOiJGIiwiaWF0IjoxNzUwNDc1Mjc3LCJleHAiOjE3NTA4MzUyNzd9.n6nDm4ErtJ6V10YmHZ6lxam7gSIanvuEyHm4llrft7A";
+    private static final String AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJGMDAwMDEiLCJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6InVzZXIxQGVtYWlsLmNvbSIsInBob25lIjoiMDkxMjM0NTY3OCIsInJvbGUiOiJGIiwiaWF0IjoxNzUwNTQxMjE0LCJleHAiOjE3ODY1NDEyMTR9.9qHMFfXM4IeKSWFvdHJQxgCk2x5DTCVxzoqlTiU5e0k";
 
     @Autowired
     private MockMvc mockMvc;
@@ -83,7 +83,7 @@ class ProcurementControllerSpringBootTest {
     }
     
     @Test
-    @DisplayName("整合測試 - 帶查詢參數的請求")
+    @DisplayName("整合測試 - GET /api/procurement/get-data 帶查詢參數的請求")
     void integrationTest_GetProcurementDataWithParams() throws Exception {
         // 測試存在的商品名稱 - 使用data-test.sql中的資料
         mockMvc.perform(get("/api/procurement/get-data")
@@ -102,7 +102,7 @@ class ProcurementControllerSpringBootTest {
     }
     
     @Test
-    @DisplayName("整合測試 - 測試供應商篩選")
+    @DisplayName("整合測試 - GET /api/procurement/get-data 供應商篩選")
     void integrationTest_FilterBySupplier() throws Exception {
         mockMvc.perform(get("/api/procurement/get-data")
                 .param("businessPartner", "WEEE")
@@ -119,8 +119,7 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(jsonPath("$.data[0].supplier.id").value("W213"));
     }
     
-    @Test
-    @DisplayName("整合測試 - 測試商品類型篩選")
+    @Test    @DisplayName("整合測試 - GET /api/procurement/get-data 商品類型篩選")
     void integrationTest_FilterByCommodityType() throws Exception {
         mockMvc.perform(get("/api/procurement/get-data")
                 .param("commodityType", "Z232")
@@ -209,8 +208,7 @@ class ProcurementControllerSpringBootTest {
                 .andExpect(jsonPath("$.data[0].commodity.transactionValue.totalCost").value(299700.0));
     }
 
-    @Test
-    @DisplayName("整合測試 - 更新不存在的記錄應該返回404")
+    @Test    @DisplayName("整合測試 - PUT /api/procurement/update-data 更新不存在記錄返回404")
     void integrationTest_UpdateNonExistentProcurement_ShouldReturn404() throws Exception {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("id", 999999L); // 不存在的ID
@@ -224,7 +222,7 @@ class ProcurementControllerSpringBootTest {
     }
     
     @Test
-    @DisplayName("整合測試 - 測試多筆資料的處理")
+    @DisplayName("整合測試 - GET /api/procurement/get-data 多筆資料處理")
     void integrationTest_MultipleRecords() throws Exception {
 
         // 直接驗證取得所有資料 - data-test.sql中已有3筆採購資料
@@ -250,7 +248,7 @@ class ProcurementControllerSpringBootTest {
     }
 
     @Test
-    @DisplayName("整合測試 - 測試日期格式化")
+    @DisplayName("整合測試 - GET /api/procurement/get-data 日期格式化驗證")
     void integrationTest_DateTimeFormatting() throws Exception {
         mockMvc.perform(get("/api/procurement/get-data")
                 .header("Authorization", AUTH_TOKEN))
@@ -263,7 +261,7 @@ class ProcurementControllerSpringBootTest {
     }
 
     @Test
-    @DisplayName("整合測試 - 錯誤處理")
+    @DisplayName("整合測試 - PUT /api/procurement/update-data 錯誤處理")
     void integrationTest_ErrorHandling() throws Exception {
         // 測試無效的JSON格式
         mockMvc.perform(put("/api/procurement/update-data")
@@ -302,7 +300,7 @@ class ProcurementControllerSpringBootTest {
     }
 
     @Test
-    @DisplayName("整合測試 - 刪除不存在id返回400")
+    @DisplayName("整合測試 - DELETE /api/procurement/delete-data 不存在ID返回400")
     void integrationTest_DeleteNonExistentProcurement_ShouldReturn400() throws Exception {
         // 使用不存在的ID
         mockMvc.perform(delete("/api/procurement/delete-data")
@@ -313,7 +311,7 @@ class ProcurementControllerSpringBootTest {
     }
 
     @Test
-    @DisplayName("整合測試 - 新增資料")
+    @DisplayName("整合測試 - POST /api/procurement/add-data 新增資料")
         void integrationTest_AddProcurement() throws Exception {
                 // 準備新增資料
                 long id = 13L;
@@ -374,7 +372,7 @@ class ProcurementControllerSpringBootTest {
         }
 
         @Test
-        @DisplayName("整合測試 - 新增錯誤資料時應回復404")
+        @DisplayName("整合測試 - POST /api/procurement/add-data 空資料返回404")
         void integrationTest_AddProcurementWithDuplicateId_ShouldReturn404() throws Exception {
                 String json = String.format("""
                 {
