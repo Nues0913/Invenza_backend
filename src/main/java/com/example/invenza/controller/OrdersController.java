@@ -41,12 +41,12 @@ public class OrdersController {
                 return Map.of(
                     "commodity", Map.of(
                         "name", orders.getCommodityName(),
-                        "type", orders.getCommodityType(),
                         "transactionValue", Map.of(
                             "unitPrice", orders.getUnitPrice(),
                             "quantity", orders.getQuantity(),
                             "totalCost", orders.getUnitPrice().multiply(BigDecimal.valueOf(orders.getQuantity()))
-                        )
+                        ),
+                        "type", orders.getCommodityType()
                     ),
                     "deadlineTimeStamp", orders.getDeadlineDate().format(formatter),
                     "distributor", Map.of(
@@ -54,8 +54,8 @@ public class OrdersController {
                             "email", orders.getDealerEmail(),
                             "phone", orders.getDealerPhone()
                         ),
-                        "name", orders.getDealerName(),
-                        "id", orders.getDealerId()
+                        "id", orders.getDealerId(),
+                        "name", orders.getDealerName()
                     ),
                     "id", orders.getId(),
                     "orderTimeStamp", orders.getOrderDate().format(formatter),

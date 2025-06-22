@@ -13,13 +13,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.invenza.dto.OrdersDto;
-import com.example.invenza.dto.OrdersDto;
-import com.example.invenza.entity.Orders;
 import com.example.invenza.entity.Orders;
 import com.example.invenza.repository.OrdersRepository;
 
 import jakarta.persistence.criteria.Predicate;
-import lombok.val;
 
 @Service
 public class OrdersService {
@@ -29,6 +26,34 @@ public class OrdersService {
         this.ordersRepository = ordersRepository;
     }
 
+    public List<OrdersDto> getAllOrderss() {
+        List<Orders> orderss = ordersRepository.findAll();
+
+        return orderss.stream().map(p -> {
+            OrdersDto dto = new OrdersDto();
+            dto.setId(p.getId());
+            dto.setCommodityName(p.getCommodityName());
+            dto.setCommodityType(p.getCommodityType());
+            dto.setUnitPrice(p.getUnitPrice());
+            dto.setQuantity(p.getQuantity());
+            dto.setTotalCost(p.getTotalPrice());
+
+            dto.setDealerName(p.getDealerName());
+            dto.setDealerId(p.getDealerId());
+            dto.setDealerEmail(p.getDealerEmail());
+            dto.setDealerPhone(p.getDealerPhone());
+            dto.setOrderDate(p.getOrderDate());
+            dto.setDeadlineDate(p.getDeadlineDate());
+
+            // TODO: 若未來有負責人欄位再加上
+            dto.setEmployeeName("Employee name");
+            dto.setEmployeeId("Employee id");
+            dto.setEmployeeEmail("Employee email");
+            dto.setEmployeePhone("Employee phone");
+
+            return dto;
+        }).toList();
+    }
     public List<OrdersDto> getUndueOrders() {
         LocalDateTime now = LocalDateTime.now();
         List<Orders> orders =  ordersRepository.findByDeadlineDateAfter(now);
@@ -126,7 +151,10 @@ public class OrdersService {
     public OrdersDto flattenRequestToDto(Map<String, Object> request) {
         OrdersDto dto = new OrdersDto();
 
-        dto.setId(Long.valueOf(request.get("id").toString()));
+        Object idObj = request.get("id");
+        if (idObj != null) {
+            dto.setId(Long.valueOf(idObj.toString()));
+        }
 
         Map<String, Object> commodity = (Map<String, Object>) request.get("commodity");
         dto.setCommodityName(commodity.get("name").toString());

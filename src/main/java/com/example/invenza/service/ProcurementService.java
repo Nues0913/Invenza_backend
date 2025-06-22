@@ -155,7 +155,11 @@ public class ProcurementService {
     public ProcurementDto flattenRequestToDto(Map<String, Object> request) {
         ProcurementDto dto = new ProcurementDto();
 
-        dto.setId(Long.valueOf(request.get("id").toString()));
+        Object idObj = request.get("id");
+        if (idObj != null) {
+            dto.setId(Long.valueOf(idObj.toString()));
+        }
+
 
         Map<String, Object> commodity = (Map<String, Object>) request.get("commodity");
         dto.setCommodityName(commodity.get("name").toString());
